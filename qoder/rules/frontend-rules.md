@@ -67,7 +67,7 @@ Keep feature boundaries clear.
 
 ## API
 
-* Always consult docs/API_DOCUMENTATION.md before implementing or consuming an API
+* Always consult docs/api-documentation.md before implementing or consuming an API
 * Do not invent endpoints, request fields, response fields, or business behaviour.
 * Handle loading, empty, error, and success states.
 * Never assume that client state represents the actual financial or business state.
