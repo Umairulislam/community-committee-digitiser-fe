@@ -1,79 +1,77 @@
-# Business Rules
+# Frontend Business Rules
+
+## Source of Truth
+
+* The backend is the source of truth for all committee, financial, lottery, payout, and audit data.
+* The frontend must display backend state rather than independently deciding business outcomes.
 
 ## Committee
 
-* A committee contains a fixed group of members and runs for a defined number of cycles.
-* Each member contributes a fixed amount per cycle.
-* The expected pool is based on the committee contribution rules.
-* Committee statuses: `DRAFT`, `ACTIVE`, `PAUSED`, `COMPLETED`, `CANCELLED`.
+* A user may only access committees returned by the backend.
+* Display committee status exactly as provided by the backend.
+* Supported committee statuses:
+
+  * `DRAFT`
+  * `ACTIVE`
+  * `PAUSED`
+  * `COMPLETED`
+  * `CANCELLED`
 
 ## Members
 
-* A member must belong to the committee to access its data.
-* Members can be active, inactive, invited, or removed.
-* Removed/inactive members must not participate in future cycles or lotteries unless explicitly allowed by the business rules.
+* Display only member information provided and authorised by the backend.
+* Do not infer membership status from local UI state.
+* Do not expose private member information unnecessarily.
 
 ## Contributions
 
-* Each active member has one contribution record per cycle.
-* A contribution has an amount, due date, and status.
-* Contribution statuses: `PENDING`, `PAID`, `OVERDUE`.
-* Duplicate contribution records for the same member and cycle are not allowed.
-* The backend calculates and validates contribution amounts.
+* Display the contribution amount, due date, and status returned by the backend.
+* Do not calculate authoritative contribution amounts on the client.
+* Do not mark a contribution as paid from client state alone.
 
 ## Payments
 
-* A payment represents an actual payment transaction for a contribution.
-* Payment data must be verified before marking a contribution as paid.
-* Financial status must never be trusted from the frontend.
-* Important payment changes must be recorded in the audit log.
+* Payment success must come from the backend/payment flow.
+* Never display a payment as permanently successful based only on a button click or optimistic state.
+* Always refresh/use the authoritative API response after payment-related operations.
 
 ## Cycles
 
-* A committee contains sequential cycles.
-* Only one cycle can be active at a time.
-* A cycle must satisfy its contribution requirements before the lottery can run.
-* Completed cycles must not be silently modified or reopened.
+* Display cycle status and totals from backend responses.
+* Do not independently advance, complete, reopen, or modify cycles on the client.
 
 ## Lottery
 
-* The backend exclusively determines the lottery winner.
-* Lottery can run only when the cycle is eligible.
-* Only eligible active members can participate.
-* Members who have already received a completed payout are excluded from future lotteries.
-* A cycle can have only one lottery result.
-* A lottery result cannot be silently replaced.
-* The lottery result must include the cycle, winner, timestamp, and relevant audit information.
+* The frontend only displays lottery state and results.
+* The frontend must never:
+
+  * Select a winner
+  * Generate the winner
+  * Determine eligibility
+  * Exclude previous winners
+* Show the final lottery result returned by the backend.
 
 ## Payouts
 
-* A payout is created only after a valid lottery winner exists.
-* Each cycle has at most one final payout.
-* Payout amount must follow the committee rules.
-* Payout statuses: `PENDING`, `PROCESSING`, `COMPLETED`, `FAILED`.
-* Completed payouts must remain part of the permanent history.
+* Display payout amount, winner, status, date, and reference from backend data.
+* Do not calculate or modify authoritative payout values on the client.
 
-## Audit Trail
+## Audit & Timeline
 
-* Important business actions must create an audit record.
-* Audit records should capture:
-
-  * Who performed the action
-  * What happened
-  * When it happened
-  * Committee
-  * Cycle
-* Historical financial, lottery, and payout records must not be silently deleted or overwritten.
+* Display audit events in chronological order according to backend data.
+* Never allow users to edit or delete audit history through the frontend.
 
 ## Notifications
 
-* Important events may trigger notifications.
-* Examples: contribution reminder, payment confirmation, lottery completion, payout completion, and committee invitation.
-* Notification generation must not alter the underlying financial records.
+* Display notification state from the backend.
+* Marking a notification as read must call the appropriate API rather than only changing local state.
 
-## General Rules
+## AI Assistant
 
-* The backend is the source of truth.
-* Never allow frontend input to decide financial totals, lottery eligibility, lottery winners, or payout validity.
-* Critical multi-step financial and lottery operations must use database transactions.
-* Business rules must be enforced consistently across all API endpoints.
+* The AI Assistant only answers questions about data the authenticated user is authorised to access.
+* Do not expose unauthorised committee information in the UI.
+* AI responses must not be treated as authoritative business decisions.
+
+## General Rule
+
+When frontend behaviour conflicts with backend data or business rules, the backend response wins.

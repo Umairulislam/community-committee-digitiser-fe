@@ -1,73 +1,140 @@
-# Coding Standards
+# Frontend Coding Standards
 
 ## TypeScript
 
 * Use strict TypeScript.
-* Avoid `any`; use proper types, interfaces, or generics.
-* Prefer explicit types for public APIs and important business logic.
-* Use enums/constants for fixed domain values where appropriate.
+* Avoid `any`.
+* Prefer interfaces/types that clearly represent domain and API data.
+* Reuse existing shared types instead of duplicating them.
 
 ## Naming
 
-* Use `PascalCase` for classes, DTOs, modules, and interfaces/types where appropriate.
-* Use `camelCase` for variables, functions, methods, and properties.
-* Use descriptive names that reflect the business domain.
-* Avoid unclear abbreviations.
+* Components: `PascalCase`
+* Hooks: `useSomething`
+* Functions/variables: `camelCase`
+* Constants: `UPPER_SNAKE_CASE` where appropriate
+* Files should follow the existing project naming convention consistently.
+* Use clear domain-specific names.
 
-## NestJS Structure
+## Components
 
-* Keep each module focused on one business domain.
-* Controllers handle HTTP concerns only.
-* Services contain business logic.
-* DTOs handle request validation.
-* Keep reusable cross-cutting utilities in appropriate common modules.
+* Keep components small and focused.
+* Separate presentation from data-fetching/business concerns where practical.
+* Avoid large components containing unrelated responsibilities.
+* Reuse existing components before creating new ones.
+* Move genuinely reusable components into `components/`.
+* Keep feature-specific components inside their feature.
 
-## Database & Prisma
+## React
 
-* Keep Prisma queries close to the relevant domain service/repository layer.
-* Avoid unnecessary database queries.
-* Select only required fields when returning sensitive or large datasets.
-* Use transactions for related operations that must succeed or fail together.
+* Use functional components.
+* Use hooks according to React rules.
+* Add `"use client"` only when required.
+* Avoid unnecessary effects and derived state.
+* Prefer server rendering where client-side behaviour is not required.
 
-## Error Handling
+## RTK Query
 
-* Use NestJS exceptions and consistent API error responses.
-* Handle expected business-rule failures explicitly.
-* Never expose internal stack traces or database implementation details.
+* Use RTK Query for API/server state.
+* Keep endpoint definitions organised by feature.
+* Prefer generated hooks rather than manually managing API request state.
+* Do not copy RTK Query data into another state store without a clear reason.
+* Correctly handle loading, error, success, empty, and refetch states.
+
+## Forms
+
+* Use React Hook Form for forms.
+* Use Zod schemas for validation.
+* Keep form schemas close to the feature/form.
+* Reuse shared form components when appropriate.
+* Avoid duplicating the same validation schema.
+
+## Material UI
+
+* Use MUI components for UI and styling.
+* Use the central theme and design tokens.
+* Prefer `sx`, `styled`, and MUI component APIs.
+* Do not introduce Tailwind or another CSS/UI framework.
+* Avoid hard-coded colours, typography, shadows, and spacing when a theme token exists.
+
+## Theme
+
+* Put reusable design tokens in `theme/tokens.ts`.
+* Put the complete MUI theme configuration and component overrides in `theme/theme.ts`.
+* Do not create ad-hoc competing themes.
+* Any new global visual pattern should be evaluated for inclusion in the central theme.
+
+## Feature Structure
+
+Feature-specific code should stay together:
+
+```text id="9ebxpw"
+features/
+└── feature-name/
+    ├── api/
+    ├── components/
+    ├── hooks/
+    ├── types/
+    ├── schemas/
+    └── ...
+```
+
+Only move code to shared folders when it is genuinely reusable.
+
+## Shared Code
+
+* Reusable components belong in `components/`.
+* Shared application types belong in `types/`.
+* Reusable helper functions belong in `utils/`.
+* Do not use `utils/` as a place for business logic.
+
+## API Contracts
+
+* Follow the backend API documentation exactly.
+* Do not invent endpoints, fields, statuses, or response structures.
+* Update frontend types when backend contracts change.
+* Handle unexpected/malformed API responses safely.
+
+## Accessibility
+
+* Use semantic elements where appropriate.
+* Provide labels for inputs and controls.
+* Ensure keyboard accessibility.
+* Use accessible names for icon-only actions.
+* Do not rely on colour alone to communicate status.
+
+## Responsive Design
+
+* Use MUI responsive utilities and breakpoints.
+* Avoid unnecessary fixed widths/heights.
+* Test important screens across desktop and mobile layouts.
 
 ## Code Quality
 
-* Prefer simple, readable solutions.
-* Avoid premature abstraction and over-engineering.
-* Keep functions and classes focused.
-* Reuse existing utilities and patterns before creating new ones.
-* Remove unused code, imports, and dependencies.
+* Prefer readable code over clever code.
+* Avoid premature abstraction.
+* Reuse existing patterns.
+* Keep functions focused.
+* Remove unused imports, variables, and components.
+* Do not modify unrelated code during feature implementation.
 
 ## Comments
 
-* Write comments only when they explain non-obvious business or technical decisions.
-* Do not add comments that simply restate the code.
+* Comment only non-obvious technical or business decisions.
+* Do not write comments that merely describe obvious code.
 
 ## Testing
 
-* Add unit tests for important business logic.
-* Test critical cases such as:
+* Test important user flows and feature logic.
+* Prioritise tests for:
 
-  * Authentication and authorisation
-  * Payment state changes
-  * Cycle transitions
-  * Lottery eligibility and execution
-  * Payout rules
-* Add integration/e2e tests for important API workflows.
+  * Forms and validation
+  * Authentication behaviour
+  * Protected routes
+  * API states
+  * Critical user interactions
+* Do not rely only on visual/manual testing for important logic.
 
-## API Consistency
+## General Rule
 
-* Keep endpoint naming, DTOs, response formats, validation, and error handling consistent across modules.
-* Do not introduce a new API pattern when an existing project pattern already exists.
-
-## Maintainability
-
-* Follow the existing project structure and conventions.
-* Make the smallest reasonable change required for a feature or bug fix.
-* Do not modify unrelated code.
-* New code must remain compatible with the established architecture and business rules.
+Before creating new code, check whether an existing component, hook, utility, type, API pattern, or theme token can be reused.

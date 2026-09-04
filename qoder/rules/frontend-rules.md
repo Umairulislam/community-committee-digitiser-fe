@@ -1,77 +1,128 @@
-# Backend Development Rules
+# Frontend Development Rules
 
-## NestJS
+## Framework
 
-* Use NestJS modules organised by business domain.
-* Keep controllers thin and focused on HTTP concerns.
-* Keep business logic inside services.
-* Use dependency injection throughout the application.
-* Keep modules loosely coupled and avoid circular dependencies.
+* Use Next.js App Router and TypeScript.
+* Follow existing Next.js conventions before introducing new patterns.
+* Clearly distinguish Server Components and Client Components.
+* Use Client Components only when client-side behaviour is required.
 
-## DTOs & Validation
+## State Management
 
-* Create DTOs for incoming request bodies, params, and query data.
-* Validate all external input.
-* Do not trust client-provided financial, status, role, or lottery values.
-* Use clear and consistent validation/error messages.
+* Use **RTK Query** for server/API state.
+* Use Redux only for genuinely shared client state.
+* Use React state for local UI state.
+* Do not duplicate API data in Redux/local state without a clear reason.
 
-## Database
+## Forms & Validation
 
-* Use Prisma as the only application-level database access layer.
-* Use PostgreSQL for persistent data.
-* Keep database models and relationships consistent with the domain.
-* Add database constraints for important business rules where appropriate.
-* Use transactions for critical multi-record operations.
+* Use **React Hook Form** for forms.
+* Use **Zod** for schema validation.
+* Keep schemas close to the feature/form that uses them.
+* Do not duplicate backend validation rules unnecessarily.
+* Always handle form loading, validation, success, and error states.
+
+## Material UI
+
+* **Material UI is the only styling/UI library.**
+* Do not use Tailwind CSS or another CSS framework.
+* Do not introduce arbitrary global CSS for component styling when MUI can handle it.
+* Reuse MUI components and project patterns instead of creating duplicate UI primitives.
+* Use the central MUI theme for colours, typography, spacing, shadows, radii, and component overrides.
+
+## Theme Rules
+
+* Never hard-code design tokens when an existing theme token can be used.
+* Add reusable design values to `theme/tokens.ts`.
+* Add global MUI component customisation to `theme/theme.ts`.
+* Do not create multiple competing theme definitions.
+
+## Components
+
+* Reusable components belong in `components/`.
+* Group shared components by category such as `layout/` and `ui/`.
+* Feature-specific components belong inside their feature.
+* Components should have a single clear responsibility.
+* Avoid large components containing unrelated logic.
+
+## Feature Structure
+
+Each feature should own its:
+
+* API logic
+* Types
+* Hooks
+* Components
+* Feature-specific utilities
+* Validation schemas
+
+Keep feature boundaries clear.
+
+## Types
+
+* Put genuinely shared types in root-level `types/`.
+* Keep feature-specific types inside the feature.
+* Avoid duplicate definitions of the same API/domain type.
+* Prefer inferred types from Zod schemas where appropriate.
 
 ## API
 
-* Use RESTful, versioned APIs.
-* Use clear resource-based endpoint naming.
-* Return consistent success and error response structures.
-* Use appropriate HTTP status codes.
-* Support pagination, filtering, and sorting where needed.
+* Always consult docs/API_DOCUMENTATION.md before implementing or consuming an API
+* Do not invent endpoints, request fields, response fields, or business behaviour.
+* Handle loading, empty, error, and success states.
+* Never assume that client state represents the actual financial or business state.
+
 
 ## Authentication & Authorisation
 
-* Protect private endpoints with authentication guards.
-* Enforce role and resource-level authorisation on the backend.
-* Verify committee membership before exposing private committee data.
-* Never rely on frontend route protection as security.
+* Use `proxy.ts` for appropriate request-level route protection.
+* Treat proxy protection as a frontend routing layer, not the final security boundary.
+* The backend remains responsible for actual authentication and authorisation.
+* Do not expose tokens, secrets, or backend credentials in client code.
 
-## Error Handling
+## Business Logic
 
-* Fail safely and return meaningful API errors.
-* Do not expose stack traces, database errors, secrets, or internal implementation details.
-* Handle expected business-rule failures explicitly.
+* Do not implement critical backend business rules inside UI components.
+* Do not calculate or determine lottery winners on the client.
+* Do not treat client-side calculations as authoritative financial values.
+* Use backend responses as the source of truth.
 
-## Financial & Lottery Operations
+## UX
 
-* Perform financial calculations on the server.
-* Verify payment state before updating contributions.
-* Validate cycle state before lottery or payout operations.
-* Use database transactions for lottery, payout, and related audit updates.
-* Prevent duplicate financial or lottery operations.
+Every API-driven screen should consider:
 
-## External Services
+* Loading state
+* Error state
+* Empty state
+* Success state
+* Disabled state where appropriate
 
-* Isolate Redis, BullMQ, payment providers, notification providers, and OpenAI behind dedicated services/modules.
-* Store credentials and API keys in environment variables.
-* Never hard-code secrets.
+Provide clear feedback for user actions such as payments, invitations, lottery results, and status changes.
 
 ## Code Quality
 
 * Use strict TypeScript.
-* Prefer readable and explicit code over clever abstractions.
-* Reuse existing project patterns.
-* Avoid unnecessary dependencies.
-* Keep functions and services focused on one responsibility.
-* Add tests for important business logic and edge cases.
+* Avoid `any`.
+* Prefer readable and maintainable code.
+* Avoid unnecessary abstraction.
+* Reuse existing components, hooks, utilities, and patterns.
+* Keep components and hooks focused.
+* Remove unused code and imports.
+* Do not modify unrelated features when implementing a task.
 
-## Changes
+## Responsive Design
 
-Before implementing a feature:
+* Build responsive layouts using MUI's responsive APIs and theme system.
+* Design for desktop and mobile from the beginning.
+* Avoid fixed dimensions that unnecessarily break responsive layouts.
 
-1. Check existing modules and patterns.
-2. Identify affected business rules and database models.
-3. Update related tests and types.
-4. Avoid changing unrelated functionality.
+## Accessibility
+
+* Use semantic HTML where appropriate.
+* Provide accessible labels and keyboard interaction.
+* Use MUI accessibility features correctly.
+* Do not rely only on colour to communicate status.
+
+## Development Principle
+
+Build the frontend feature by feature, following the documented backend contracts, project architecture, business rules, and central design system.

@@ -1,64 +1,68 @@
-# Security Rules
+# Frontend Security Rules
 
 ## Authentication
 
-* Protect all private endpoints with authentication guards.
-* Store authentication credentials/tokens securely; never expose them to client-side JavaScript unnecessarily.
-* Hash passwords using a secure password-hashing algorithm such as Argon2 or bcrypt.
-* Never log passwords, tokens, API keys, or other secrets.
+* Protect authenticated routes using the root `proxy.ts`.
+* Do not store sensitive authentication credentials in insecure client-side storage.
+* Never expose secrets, private keys, database credentials, or backend API keys in frontend code.
+* Do not place server-only environment variables in client-exposed configuration.
 
 ## Authorisation
 
-* Enforce authorisation on the backend, never only in the frontend.
-* Verify both the user's role and their access to the requested resource.
-* A user can access only committees and financial records they are authorised to access.
-* Admin access must be limited to committees they are authorised to manage.
+* Frontend route protection improves UX but is not the security boundary.
+* Never assume that hiding a UI element provides authorisation.
+* The backend must enforce all permissions.
 
-## Input & API Security
+## API Security
 
-* Validate and sanitise all external input.
-* Never trust client-provided IDs, roles, amounts, statuses, ownership, or permissions.
-* Prevent mass-assignment by explicitly controlling accepted fields.
-* Apply rate limiting to authentication and other sensitive endpoints.
+* Send requests only to configured backend API endpoints.
+* Follow the documented API contracts.
+* Do not allow arbitrary user-controlled URLs to become API destinations.
+* Handle authentication failures and expired sessions safely.
 
-## Financial Security
+## Sensitive Data
 
-* Never trust payment success/status values sent by the frontend.
-* Verify payment information through trusted backend/payment-provider data.
-* Calculate financial totals on the server.
-* Protect payment, contribution, and payout records from unauthorised modification.
-* Use database transactions for critical financial operations.
+* Display only the minimum data required by the current screen.
+* Do not log passwords, tokens, payment data, or other sensitive information.
+* Avoid exposing sensitive information in URLs, browser storage, or client-side logs.
 
-## Lottery Security
+## Forms
 
-* Lottery eligibility must be calculated by the backend.
-* The frontend must never select or submit the winner.
-* Previous successful payout recipients must be excluded according to business rules.
-* Prevent duplicate or repeated lottery execution for the same cycle.
-* Store the lottery result and audit event atomically.
+* Validate user input with Zod before submission where appropriate.
+* Treat frontend validation as a usability feature, not a security control.
+* Never trust values simply because they passed frontend validation.
 
-## Data Protection
+## Payments
 
-* Return only the data required by the requesting user.
-* Never expose passwords, secrets, internal tokens, or unnecessary personal data.
-* Do not expose sensitive database or infrastructure details in API responses.
-* Use HTTPS in deployed environments.
+* Never determine payment success on the client.
+* Do not store sensitive payment credentials.
+* Do not expose secret payment-provider configuration in client code.
 
-## Secrets & Configuration
+## Lottery
 
-* Keep secrets in environment variables or a secure secret manager.
-* Never commit `.env` files or credentials to source control.
-* Provide a safe `.env.example` containing variable names only.
+* Never generate or modify lottery winners in the browser.
+* Never trust a client-generated eligibility list.
+* Display only the backend-provided lottery result.
 
-## Logging & Auditing
+## AI
 
-* Log security-relevant events without exposing sensitive information.
-* Important financial, administrative, lottery, and permission changes must create audit records.
-* Audit records must not be silently deleted or modified.
+* Never expose the OpenAI API key in the browser.
+* AI requests must go through the backend.
+* Do not send unnecessary private user/committee data directly from the browser to an AI provider.
 
-## AI Security
+## Third-Party Libraries
 
-* Never give the AI direct unrestricted database access.
-* Retrieve only data the authenticated user is authorised to access.
-* Do not send unnecessary personal or sensitive data to the AI provider.
-* Treat AI output as informational; it must not override backend business rules or permissions.
+* Avoid unnecessary third-party packages.
+* Review package purpose before adding dependencies.
+* Do not introduce libraries that duplicate existing project functionality without a clear reason.
+
+## Error Handling
+
+* Show user-friendly error messages.
+* Do not display raw server errors, stack traces, SQL errors, tokens, or internal infrastructure details.
+
+## Environment Variables
+
+* Keep secrets in server-side environment variables.
+* Only expose variables that genuinely need to be available to the browser using the appropriate Next.js public-variable mechanism.
+* Keep `.env` out of source control and maintain `.env.example` with placeholders.
