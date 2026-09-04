@@ -1,33 +1,35 @@
-import { Box, Container, Typography } from '@mui/material';
-import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
+'use client';
 
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { CircularProgress, Box } from '@mui/material';
+import { useAuth } from '@/features/auth';
+
+/**
+ * Root page — redirects based on authentication state.
+ * Authenticated → /dashboard
+ * Unauthenticated → /login
+ */
 export default function HomePage() {
+  const router = useRouter();
+  const { isAuthenticated, isLoading } = useAuth();
+
+  useEffect(() => {
+    if (!isLoading) {
+      router.replace(isAuthenticated ? '/dashboard' : '/login');
+    }
+  }, [isAuthenticated, isLoading, router]);
+
   return (
     <Box
-      component="main"
       sx={{
         display: 'flex',
-        flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
         minHeight: '100vh',
-        backgroundColor: 'background.default',
-        p: 4,
       }}
     >
-      <Container maxWidth="sm" sx={{ textAlign: 'center' }}>
-        <AccountBalanceIcon color="primary" sx={{ fontSize: 56, mb: 2 }} />
-        <Typography variant="h3" gutterBottom sx={{ fontWeight: 700 }}>
-          Community Committee Digitiser
-        </Typography>
-        <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
-          A transparent and auditable digital platform for managing community
-          committees — contributions, cycles, lottery, and payouts.
-        </Typography>
-        <Typography variant="caption" color="text.disabled">
-          Phase 1 — Foundation &amp; Architecture
-        </Typography>
-      </Container>
+      <CircularProgress />
     </Box>
   );
 }
