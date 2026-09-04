@@ -177,3 +177,44 @@ export interface MyCommitteeMembership {
   status: MemberStatus;
   joinedAt: string;
 }
+
+/** Contribution summary for a cycle. */
+export interface ContributionSummary {
+  totalExpected: number;
+  totalCollected: number;
+  totalPending: number;
+  totalOverdue: number;
+  memberCount: number;
+}
+
+/** Committee report summary from /committees/:id/reports/summary. */
+export interface CommitteeReportSummary {
+  committeeId: string;
+  name: string;
+  description: string | null;
+  status: CommitteeStatus;
+  contributionAmount: number;
+  memberLimit: number;
+  totalCycles: number;
+  dueDay: number;
+  startDate: string;
+  createdBy: string;
+  createdAt: string;
+  memberCount: number;
+  activeMemberCount: number;
+  cycleCount: number;
+  completedCycleCount: number;
+}
+
+/** Lottery result record. */
+export interface LotteryResult {
+  id: string;
+  cycleId: string;
+  winnerMemberId: string;
+  eligibleMemberCount: number;
+  executedAt: string;
+  executedBy: string;
+  createdAt: string;
+  cycle?: Pick<Cycle, 'id' | 'cycleNumber' | 'status'>;
+  winner?: Member;
+}

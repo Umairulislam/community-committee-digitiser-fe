@@ -3,10 +3,10 @@
 import { AppShell } from '@/components/layout/AppShell';
 
 /**
- * Dashboard layout with app bar and navigation.
- * Wraps all dashboard pages.
+ * Committees layout with app bar and navigation.
+ * Wraps all committee pages.
  */
-export default function DashboardLayout({
+export default function CommitteesLayout({
   children,
 }: {
   children: React.ReactNode;
