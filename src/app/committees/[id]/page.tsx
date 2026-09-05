@@ -28,6 +28,7 @@ import { UserContributionsPanel } from '@/features/contributions';
 import { UserPaymentsPanel } from '@/features/payments';
 import { UserLotteryPanel } from '@/features/lottery';
 import { UserPayoutsPanel } from '@/features/payouts';
+import { UserTimelinePanel } from '@/features/timeline';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -49,6 +50,7 @@ function TabPanel({ children, value, index }: TabPanelProps) {
  * - Cycles: cycle list with progress
  * - Lottery: current draw status and completed lottery results
  * - Payouts: the user's payout record and committee payout history
+ * - Timeline: chronological audit trail of committee events
  */
 export default function CommitteeDetailPage() {
   const router = useRouter();
@@ -160,6 +162,7 @@ export default function CommitteeDetailPage() {
           <Tab label="Cycles" />
           <Tab label="Lottery" />
           <Tab label="Payouts" />
+          <Tab label="Timeline" />
         </Tabs>
       </Box>
 
@@ -200,6 +203,10 @@ export default function CommitteeDetailPage() {
 
       <TabPanel value={activeTab} index={6}>
         <UserPayoutsPanel committeeId={committeeId} />
+      </TabPanel>
+
+      <TabPanel value={activeTab} index={7}>
+        <UserTimelinePanel committeeId={committeeId} />
       </TabPanel>
     </Container>
   );

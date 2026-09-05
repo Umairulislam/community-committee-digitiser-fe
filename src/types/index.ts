@@ -48,6 +48,21 @@ export type NotificationType =
   | 'PAYOUT_COMPLETED'
   | 'GENERAL';
 
+/** Audit actions as recorded by the backend (immutable audit trail). */
+export type AuditAction =
+  | 'COMMITTEE_CREATED'
+  | 'COMMITTEE_UPDATED'
+  | 'COMMITTEE_STATUS_CHANGED'
+  | 'MEMBER_INVITED'
+  | 'MEMBER_JOINED'
+  | 'MEMBER_REMOVED'
+  | 'PAYMENT_VERIFIED'
+  | 'PAYMENT_REJECTED'
+  | 'CONTRIBUTION_STATUS_CHANGED'
+  | 'LOTTERY_EXECUTED'
+  | 'PAYOUT_CREATED'
+  | 'PAYOUT_STATUS_CHANGED';
+
 /** Paginated response envelope returned by all list endpoints. */
 export interface PaginatedResponse<T> {
   data: T[];
@@ -240,4 +255,17 @@ export interface LotteryResult {
   createdAt: string;
   cycle?: Pick<Cycle, 'id' | 'cycleNumber' | 'status'>;
   winner?: Member;
+}
+
+/** Immutable audit entry as returned by the audit-log endpoints. */
+export interface AuditLog {
+  id: string;
+  actorId: string;
+  action: AuditAction;
+  entityType: string;
+  entityId: string;
+  committeeId: string;
+  cycleId: string | null;
+  metadata: Record<string, unknown> | null;
+  createdAt: string;
 }
