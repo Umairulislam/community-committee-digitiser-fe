@@ -24,7 +24,7 @@ import PersonOutlinedIcon from '@mui/icons-material/PersonOutlined';
 import DashboardOutlinedIcon from '@mui/icons-material/DashboardOutlined';
 import GroupsOutlinedIcon from '@mui/icons-material/GroupsOutlined';
 import { useAuth, useLogoutMutation } from '@/features/auth';
-import { useGetUnreadCountQuery } from '@/features/dashboard';
+import { useGetUnreadCountQuery } from '@/features/notifications';
 import { getInitials } from '@/utils';
 
 interface AppShellProps {
@@ -118,7 +118,11 @@ export function AppShell({ children }: AppShellProps) {
 
           {/* Notifications */}
           <Tooltip title="Notifications">
-            <IconButton sx={{ mr: 1 }}>
+            <IconButton
+              sx={{ mr: 1 }}
+              aria-label="Notifications"
+              onClick={() => router.push('/notifications')}
+            >
               <Badge badgeContent={unreadCountData?.count ?? 0} color="error" max={99}>
                 <NotificationsOutlinedIcon />
               </Badge>

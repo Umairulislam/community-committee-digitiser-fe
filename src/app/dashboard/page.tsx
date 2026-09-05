@@ -17,7 +17,6 @@ import PaidOutlinedIcon from '@mui/icons-material/PaidOutlined';
 import ScheduleOutlinedIcon from '@mui/icons-material/ScheduleOutlined';
 import AccountBalanceWalletOutlinedIcon from '@mui/icons-material/AccountBalanceWalletOutlined';
 import NotificationsOutlinedIcon from '@mui/icons-material/NotificationsOutlined';
-import WarningAmberOutlinedIcon from '@mui/icons-material/WarningAmberOutlined';
 import ErrorOutlineOutlinedIcon from '@mui/icons-material/ErrorOutlineOutlined';
 import InboxOutlinedIcon from '@mui/icons-material/InboxOutlined';
 import { useAuth } from '@/features/auth';
@@ -27,10 +26,12 @@ import {
   NotificationList,
   PayoutList,
   useGetMyCommitteesQuery,
-  useGetNotificationsQuery,
   useGetMyPayoutsQuery,
-  useGetUnreadCountQuery,
 } from '@/features/dashboard';
+import {
+  useGetNotificationsQuery,
+  useGetUnreadCountQuery,
+} from '@/features/notifications';
 import { formatCurrency } from '@/utils';
 
 /**

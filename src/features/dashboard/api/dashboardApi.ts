@@ -1,7 +1,6 @@
 import { baseApi } from '@/api/baseApi';
 import type {
   MyCommitteeMembership,
-  NotificationListResponse,
   PaginatedResponse,
   Payout,
   Cycle,
@@ -13,11 +12,6 @@ interface PaginationParams {
   limit?: number;
 }
 
-interface NotificationQueryParams extends PaginationParams {
-  type?: string;
-  read?: boolean;
-}
-
 export const dashboardApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     /**
@@ -27,27 +21,6 @@ export const dashboardApi = baseApi.injectEndpoints({
     getMyCommittees: builder.query<MyCommitteeMembership[], void>({
       query: () => '/committees/my-committees',
       providesTags: ['Committee'],
-    }),
-
-    /**
-     * List the authenticated user's notifications.
-     * GET /notifications
-     */
-    getNotifications: builder.query<NotificationListResponse, NotificationQueryParams>({
-      query: (params) => ({
-        url: '/notifications',
-        params,
-      }),
-      providesTags: ['Notification'],
-    }),
-
-    /**
-     * Get unread notification count.
-     * GET /notifications/unread-count
-     */
-    getUnreadCount: builder.query<{ count: number }, void>({
-      query: () => '/notifications/unread-count',
-      providesTags: ['Notification'],
     }),
 
     /**
@@ -78,8 +51,6 @@ export const dashboardApi = baseApi.injectEndpoints({
 
 export const {
   useGetMyCommitteesQuery,
-  useGetNotificationsQuery,
-  useGetUnreadCountQuery,
   useGetMyPayoutsQuery,
   useGetCyclesQuery,
 } = dashboardApi;

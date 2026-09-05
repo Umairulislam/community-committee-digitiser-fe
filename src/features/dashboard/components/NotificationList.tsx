@@ -10,66 +10,21 @@ import {
   Paper,
   Typography,
 } from '@mui/material';
-import NotificationsNoneOutlinedIcon from '@mui/icons-material/NotificationsNoneOutlined';
-import PaymentOutlinedIcon from '@mui/icons-material/PaymentOutlined';
-import EmojiEventsOutlinedIcon from '@mui/icons-material/EmojiEventsOutlined';
-import AccountBalanceWalletOutlinedIcon from '@mui/icons-material/AccountBalanceWalletOutlined';
-import WarningAmberOutlinedIcon from '@mui/icons-material/WarningAmberOutlined';
 import MarkEmailReadOutlinedIcon from '@mui/icons-material/MarkEmailReadOutlined';
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
-import MailOutlinedIcon from '@mui/icons-material/MailOutlined';
-import type { Notification, NotificationType } from '@/types';
+import type { Notification } from '@/types';
 import { formatDateTime } from '@/utils';
+import {
+  notificationChipColor,
+  NotificationTypeIcon,
+} from '@/features/notifications';
 
 interface NotificationListProps {
   notifications: Notification[];
   loading?: boolean;
 }
 
-/** Maps notification type to an appropriate icon. */
-function notificationIcon(type: NotificationType) {
-  switch (type) {
-    case 'PAYMENT_VERIFIED':
-    case 'PAYMENT_REJECTED':
-      return PaymentOutlinedIcon;
-    case 'LOTTERY_COMPLETED':
-      return EmojiEventsOutlinedIcon;
-    case 'PAYOUT_COMPLETED':
-      return AccountBalanceWalletOutlinedIcon;
-    case 'CONTRIBUTION_OVERDUE':
-      return WarningAmberOutlinedIcon;
-    case 'CONTRIBUTION_REMINDER':
-      return PaymentOutlinedIcon;
-    case 'COMMITTEE_INVITATION':
-      return MailOutlinedIcon;
-    case 'COMMITTEE_STATUS_CHANGED':
-    case 'CYCLE_STARTED':
-    case 'CYCLE_COMPLETED':
-      return InfoOutlinedIcon;
-    default:
-      return NotificationsNoneOutlinedIcon;
-  }
-}
-
-/** Maps notification type to a chip color. */
-function typeChipColor(type: NotificationType): 'default' | 'success' | 'warning' | 'error' | 'info' {
-  switch (type) {
-    case 'PAYMENT_VERIFIED':
-    case 'PAYOUT_COMPLETED':
-    case 'LOTTERY_COMPLETED':
-      return 'success';
-    case 'PAYMENT_REJECTED':
-    case 'CONTRIBUTION_OVERDUE':
-      return 'error';
-    case 'CONTRIBUTION_REMINDER':
-      return 'warning';
-    default:
-      return 'info';
-  }
-}
-
 /**
- * Displays a list of recent notifications.
+ * Displays a list of recent notifications (dashboard widget).
  */
 export function NotificationList({ notifications, loading }: NotificationListProps) {
   if (loading) {
@@ -106,7 +61,6 @@ export function NotificationList({ notifications, loading }: NotificationListPro
       ) : (
         <List disablePadding>
           {notifications.map((notification) => {
-            const Icon = notificationIcon(notification.type);
             return (
               <ListItem
                 key={notification.id}
@@ -120,7 +74,7 @@ export function NotificationList({ notifications, loading }: NotificationListPro
                 }}
               >
                 <ListItemIcon sx={{ minWidth: 40 }}>
-                  <Icon sx={{ fontSize: 22, color: 'text.secondary' }} />
+                  <NotificationTypeIcon type={notification.type} />
                 </ListItemIcon>
                 <ListItemText
                   primary={
@@ -142,7 +96,7 @@ export function NotificationList({ notifications, loading }: NotificationListPro
                         <Chip
                           label={notification.type.replace(/_/g, ' ')}
                           size="small"
-                          color={typeChipColor(notification.type)}
+                          color={notificationChipColor(notification.type)}
                           variant="outlined"
                           sx={{ height: 18, fontSize: '0.625rem' }}
                         />

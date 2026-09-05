@@ -1,0 +1,171 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import {
+  Alert,
+  Box,
+  Button,
+  Chip,
+  CircularProgress,
+  Container,
+  Divider,
+  Pagination,
+  Paper,
+  ToggleButton,
+  ToggleButtonGroup,
+  Typography,
+} from '@mui/material';
+import DoneAllOutlinedIcon from '@mui/icons-material/DoneAllOutlined';
+import ErrorOutlineOutlinedIcon from '@mui/icons-material/ErrorOutlineOutlined';
+import { useAuth } from '@/features/auth';
+import {
+  NotificationsList,
+  useGetNotificationsQuery,
+  useMarkAllNotificationsReadMutation,
+} from '@/features/notifications';
+
+/** Page size for the notifications list (API default is 20). */
+const PAGE_SIZE = 20;
+
+/** Read-status filter values supported by the list endpoint. */
+type ReadFilter = 'all' | 'unread' | 'read';
+
+/**
+ * Notifications page: the authenticated user's notifications with
+ * unread/read filtering, mark-as-read actions, and navigation to the
+ * related committee feature.
+ */
+export default function NotificationsPage() {
+  const router = useRouter();
+  const { isAuthenticated, isLoading: authLoading } = useAuth();
+
+  const [filter, setFilter] = useState<ReadFilter>('all');
+  const [page, setPage] = useState(1);
+
+  const {
+    data,
+    isLoading,
+    isError,
+    error,
+  } = useGetNotificationsQuery({
+    ...(filter === 'unread' ? { read: false } : filter === 'read' ? { read: true } : {}),
+    page,
+    limit: PAGE_SIZE,
+  });
+
+  const [markAllRead, { isLoading: markingAll }] = useMarkAllNotificationsReadMutation();
+
+  // Redirect if not authenticated
+  useEffect(() => {
+    if (!authLoading && !isAuthenticated) {
+      router.replace('/login');
+    }
+  }, [authLoading, isAuthenticated, router]);
+
+  const handleFilterChange = (_: React.MouseEvent<HTMLElement>, value: ReadFilter | null) => {
+    if (value !== null) {
+      setFilter(value);
+      setPage(1);
+    }
+  };
+
+  const handleMarkAllRead = async () => {
+    try {
+      await markAllRead().unwrap();
+    } catch {
+      // The list simply stays as-is if the request fails.
+    }
+  };
+
+  const totalPages = Math.ceil((data?.total ?? 0) / PAGE_SIZE);
+  const unreadCount = data?.unreadCount ?? 0;
+
+  // Loading state
+  if (authLoading) {
+    return (
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh' }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  return (
+    <Container maxWidth="md" sx={{ py: 4 }}>
+      {/* Header */}
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'flex-start',
+          justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: 2,
+          mb: 3,
+        }}
+      >
+        <Box>
+          <Typography variant="h4" sx={{ fontWeight: 700 }}>
+            Notifications
+          </Typography>
+          <Typography variant="body1" color="text.secondary" sx={{ mt: 0.5 }}>
+            Updates about your committees, contributions, payments, lotteries, and payouts
+          </Typography>
+        </Box>
+        {unreadCount > 0 && (
+          <Chip label={`${unreadCount} unread`} color="primary" sx={{ mt: 1 }} />
+        )}
+      </Box>
+
+      {/* Error state */}
+      {isError && (
+        <Alert severity="error" icon={<ErrorOutlineOutlinedIcon />} sx={{ mb: 3 }}>
+          {(error as { data?: { message?: string } })?.data?.message
+            ?? 'Failed to load notifications. Please try again.'}
+        </Alert>
+      )}
+
+      {/* Controls */}
+      <Paper sx={{ p: 2, mb: 2.5, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 1.5 }}>
+        <ToggleButtonGroup
+          exclusive
+          size="small"
+          value={filter}
+          onChange={handleFilterChange}
+          aria-label="Filter notifications by read status"
+        >
+          <ToggleButton value="all">All</ToggleButton>
+          <ToggleButton value="unread">Unread</ToggleButton>
+          <ToggleButton value="read">Read</ToggleButton>
+        </ToggleButtonGroup>
+        <Button
+          size="small"
+          startIcon={<DoneAllOutlinedIcon />}
+          disabled={unreadCount === 0 || markingAll || isLoading}
+          onClick={handleMarkAllRead}
+        >
+          {markingAll ? 'Marking…' : 'Mark all as read'}
+        </Button>
+      </Paper>
+
+      {/* List */}
+      <NotificationsList notifications={data?.data ?? []} loading={isLoading} />
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
+          <Pagination
+            count={totalPages}
+            page={page}
+            onChange={(_, value) => setPage(value)}
+            color="primary"
+          />
+        </Box>
+      )}
+
+      <Divider sx={{ mt: 4 }} />
+      <Typography variant="caption" color="text.disabled" sx={{ display: 'block', mt: 1.5 }}>
+        Notifications are generated by the system for events you are involved in.
+      </Typography>
+    </Container>
+  );
+}

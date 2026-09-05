@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter, useParams } from 'next/navigation';
+import { useRouter, useParams, useSearchParams } from 'next/navigation';
 import {
   Alert,
   Box,
@@ -36,6 +36,18 @@ interface TabPanelProps {
   value: number;
 }
 
+/** Query-param keys for the committee detail tabs, in tab order. */
+const TAB_KEYS = [
+  'overview',
+  'contributions',
+  'payments',
+  'members',
+  'cycles',
+  'lottery',
+  'payouts',
+  'timeline',
+] as const;
+
 function TabPanel({ children, value, index }: TabPanelProps) {
   if (value !== index) return null;
   return <Box sx={{ mt: 3 }}>{children}</Box>;
@@ -55,10 +67,16 @@ function TabPanel({ children, value, index }: TabPanelProps) {
 export default function CommitteeDetailPage() {
   const router = useRouter();
   const params = useParams();
+  const searchParams = useSearchParams();
   const committeeId = params.id as string;
 
   const { isAuthenticated, isLoading: authLoading } = useAuth();
-  const [activeTab, setActiveTab] = useState(0);
+
+  // Deep links (e.g. from notifications) target a tab via ?tab=
+  const initialTab = TAB_KEYS.indexOf(
+    (searchParams.get('tab') ?? '') as (typeof TAB_KEYS)[number],
+  );
+  const [activeTab, setActiveTab] = useState(initialTab >= 0 ? initialTab : 0);
 
   // Redirect if not authenticated
   useEffect(() => {
