@@ -8,18 +8,36 @@ import {
   Typography,
 } from '@mui/material';
 import EmojiEventsOutlinedIcon from '@mui/icons-material/EmojiEventsOutlined';
-import type { LotteryResult } from '@/types';
-import { formatDate, getInitials } from '@/utils';
+import type { LotteryResult, Payout, PayoutStatus } from '@/types';
+import { formatCurrency, formatDate, getInitials } from '@/utils';
 
 interface LotteryHistoryProps {
   lotteries: LotteryResult[];
   loading?: boolean;
+  /** Committee payouts, used to show the payout amount/status of each draw. */
+  payouts?: Payout[];
+}
+
+/** Maps payout status to chip color. */
+function payoutStatusColor(status: PayoutStatus): 'default' | 'success' | 'warning' | 'error' | 'info' {
+  switch (status) {
+    case 'COMPLETED':
+      return 'success';
+    case 'PROCESSING':
+      return 'info';
+    case 'FAILED':
+      return 'error';
+    default:
+      return 'warning';
+  }
 }
 
 /**
- * Displays lottery history for a committee.
+ * Displays lottery history for a committee, with the payout amount and
+ * status of each draw when a payout has been created for its cycle.
  */
-export function LotteryHistory({ lotteries, loading }: LotteryHistoryProps) {
+export function LotteryHistory({ lotteries, loading, payouts }: LotteryHistoryProps) {
+  const payoutByCycleId = new Map((payouts ?? []).map((payout) => [payout.cycleId, payout]));
   if (loading) {
     return (
       <Paper sx={{ p: 3 }}>
@@ -64,7 +82,9 @@ export function LotteryHistory({ lotteries, loading }: LotteryHistoryProps) {
         Lottery History ({lotteries.length})
       </Typography>
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-        {lotteries.map((lottery) => (
+        {lotteries.map((lottery) => {
+          const payout = payoutByCycleId.get(lottery.cycleId);
+          return (
           <Box
             key={lottery.id}
             sx={{
@@ -103,6 +123,19 @@ export function LotteryHistory({ lotteries, loading }: LotteryHistoryProps) {
               <Typography variant="body2" color="text.secondary">
                 Winner: {lottery.winner?.user?.name ?? 'Unknown'}
               </Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
+                <Typography variant="body2" color="text.secondary">
+                  Payout: {payout ? formatCurrency(payout.amount) : 'Not created yet'}
+                </Typography>
+                {payout && (
+                  <Chip
+                    label={payout.status}
+                    size="small"
+                    color={payoutStatusColor(payout.status)}
+                    variant="outlined"
+                  />
+                )}
+              </Box>
               <Typography variant="caption" color="text.disabled">
                 {lottery.eligibleMemberCount} eligible members • Drawn {formatDate(lottery.executedAt)}
               </Typography>
@@ -127,7 +160,8 @@ export function LotteryHistory({ lotteries, loading }: LotteryHistoryProps) {
               )}
             </Box>
           </Box>
-        ))}
+          );
+        })}
       </Box>
     </Paper>
   );

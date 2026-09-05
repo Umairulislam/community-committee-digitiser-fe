@@ -19,17 +19,15 @@ import {
   MembersList,
   CyclesList,
   ContributionSummaryCard,
-  LotteryHistory,
-  PayoutsList,
   useGetReportSummaryQuery,
   useGetMembersQuery,
   useGetCyclesQuery,
-  useGetLotteriesQuery,
-  useGetPayoutsQuery,
   useGetContributionSummaryQuery,
 } from '@/features/committees';
 import { UserContributionsPanel } from '@/features/contributions';
 import { UserPaymentsPanel } from '@/features/payments';
+import { UserLotteryPanel } from '@/features/lottery';
+import { UserPayoutsPanel } from '@/features/payouts';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -49,8 +47,8 @@ function TabPanel({ children, value, index }: TabPanelProps) {
  * - Payments: the user's payment history and details
  * - Members: member list
  * - Cycles: cycle list with progress
- * - Lottery: lottery history
- * - Payouts: payout history
+ * - Lottery: current draw status and completed lottery results
+ * - Payouts: the user's payout record and committee payout history
  */
 export default function CommitteeDetailPage() {
   const router = useRouter();
@@ -84,16 +82,6 @@ export default function CommitteeDetailPage() {
     data: cyclesData,
     isLoading: cyclesLoading,
   } = useGetCyclesQuery({ committeeId, limit: 50 });
-
-  const {
-    data: lotteriesData,
-    isLoading: lotteriesLoading,
-  } = useGetLotteriesQuery({ committeeId });
-
-  const {
-    data: payoutsData,
-    isLoading: payoutsLoading,
-  } = useGetPayoutsQuery({ committeeId, limit: 20 });
 
   // Find the active cycle for contribution summary
   const activeCycle = cyclesData?.data?.find((c) => c.status === 'ACTIVE');
@@ -207,11 +195,11 @@ export default function CommitteeDetailPage() {
       </TabPanel>
 
       <TabPanel value={activeTab} index={5}>
-        <LotteryHistory lotteries={lotteriesData?.data ?? []} loading={lotteriesLoading} />
+        <UserLotteryPanel committeeId={committeeId} />
       </TabPanel>
 
       <TabPanel value={activeTab} index={6}>
-        <PayoutsList payouts={payoutsData?.data ?? []} loading={payoutsLoading} />
+        <UserPayoutsPanel committeeId={committeeId} />
       </TabPanel>
     </Container>
   );
