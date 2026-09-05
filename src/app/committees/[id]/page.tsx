@@ -28,6 +28,8 @@ import {
   useGetPayoutsQuery,
   useGetContributionSummaryQuery,
 } from '@/features/committees';
+import { UserContributionsPanel } from '@/features/contributions';
+import { UserPaymentsPanel } from '@/features/payments';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -43,9 +45,10 @@ function TabPanel({ children, value, index }: TabPanelProps) {
 /**
  * Committee detail page with tabbed sections:
  * - Overview: report summary
+ * - Contributions: current contribution with pay action and history by cycle
+ * - Payments: the user's payment history and details
  * - Members: member list
  * - Cycles: cycle list with progress
- * - Contributions: contribution summary for active cycle
  * - Lottery: lottery history
  * - Payouts: payout history
  */
@@ -163,6 +166,8 @@ export default function CommitteeDetailPage() {
           scrollButtons="auto"
         >
           <Tab label="Overview" />
+          <Tab label="Contributions" />
+          <Tab label="Payments" />
           <Tab label="Members" />
           <Tab label="Cycles" />
           <Tab label="Lottery" />
@@ -186,18 +191,26 @@ export default function CommitteeDetailPage() {
       </TabPanel>
 
       <TabPanel value={activeTab} index={1}>
-        <MembersList members={membersData?.data ?? []} loading={membersLoading} />
+        <UserContributionsPanel committeeId={committeeId} />
       </TabPanel>
 
       <TabPanel value={activeTab} index={2}>
-        <CyclesList cycles={cyclesData?.data ?? []} loading={cyclesLoading} />
+        <UserPaymentsPanel committeeId={committeeId} />
       </TabPanel>
 
       <TabPanel value={activeTab} index={3}>
-        <LotteryHistory lotteries={lotteriesData?.data ?? []} loading={lotteriesLoading} />
+        <MembersList members={membersData?.data ?? []} loading={membersLoading} />
       </TabPanel>
 
       <TabPanel value={activeTab} index={4}>
+        <CyclesList cycles={cyclesData?.data ?? []} loading={cyclesLoading} />
+      </TabPanel>
+
+      <TabPanel value={activeTab} index={5}>
+        <LotteryHistory lotteries={lotteriesData?.data ?? []} loading={lotteriesLoading} />
+      </TabPanel>
+
+      <TabPanel value={activeTab} index={6}>
         <PayoutsList payouts={payoutsData?.data ?? []} loading={payoutsLoading} />
       </TabPanel>
     </Container>

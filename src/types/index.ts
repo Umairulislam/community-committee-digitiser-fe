@@ -118,6 +118,29 @@ export interface Contribution {
   paymentId: string | null;
   createdAt: string;
   updatedAt: string;
+  /** Paying member, nested in contribution list/detail responses. */
+  member?: Member;
+}
+
+/** Contribution subset nested within payment responses. */
+export type PaymentContribution = Pick<
+  Contribution,
+  'id' | 'cycleId' | 'memberId' | 'amount' | 'status'
+> & { member?: Member };
+
+/** Payment record as returned by the payments endpoints. */
+export interface Payment {
+  id: string;
+  contributionId: string;
+  memberId: string;
+  amount: string;
+  transactionReference: string;
+  status: PaymentVerificationStatus;
+  paidAt: string;
+  verifiedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+  contribution?: PaymentContribution;
 }
 
 /** Payout record. */
