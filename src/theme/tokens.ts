@@ -4,58 +4,58 @@
  */
 
 export const colors = {
-  // Brand
+  // Brand — Indigo (trust & community) + Emerald (growth & prosperity)
   primary: {
-    main: '#1565C0',
-    light: '#1E88E5',
-    dark: '#0D47A1',
+    main: '#5228CC',
+    light: '#7C4DFF',
+    dark: '#3A1D8F',
     contrastText: '#FFFFFF',
   },
   secondary: {
-    main: '#00897B',
-    light: '#26A69A',
-    dark: '#00695C',
+    main: '#00A86B',
+    light: '#2ECC87',
+    dark: '#007A4D',
     contrastText: '#FFFFFF',
   },
 
   // Feedback
-  success: { main: '#2E7D32', light: '#4CAF50', dark: '#1B5E20' },
-  warning: { main: '#ED6C02', light: '#FF9800', dark: '#E65100' },
-  error:   { main: '#C62828', light: '#EF5350', dark: '#B71C1C' },
-  info:    { main: '#0288D1', light: '#03A9F4', dark: '#01579B' },
+  success: { main: '#16A34A', light: '#4ADE80', dark: '#15803D' },
+  warning: { main: '#F59E0B', light: '#FCD34D', dark: '#B45309' },
+  error:   { main: '#EF4444', light: '#FCA5A5', dark: '#B91C1C' },
+  info:    { main: '#3B82F6', light: '#93C5FD', dark: '#1E40AF' },
 
-  // Neutrals
+  // Neutrals — warmer undertone to complement indigo
   background: {
-    default: '#F5F7FA',
+    default: '#FAFAFB',
     paper:   '#FFFFFF',
-    subtle:  '#EDF0F5',
+    subtle:  '#F3F1FA',
   },
   text: {
-    primary:   '#1A1A2E',
-    secondary: '#5A5F7A',
-    disabled:  '#9EA3B5',
+    primary:   '#1C1B2E',
+    secondary: '#64617A',
+    disabled:  '#A8A5B8',
   },
   border: {
-    default: '#DDE1EA',
-    light:   '#EDF0F5',
-    focus:   '#1565C0',
+    default: '#E5E2EF',
+    light:   '#F3F1FA',
+    focus:   '#5228CC',
   },
 
-  // Committee status colours (referenced in status chips/badges)
+  // Committee status colours
   status: {
-    draft:     { bg: '#FFF8E1', text: '#7A5C00' },
-    active:    { bg: '#E8F5E9', text: '#1B5E20' },
-    paused:    { bg: '#FFF3E0', text: '#BF360C' },
-    completed: { bg: '#E3F2FD', text: '#0D47A1' },
-    cancelled: { bg: '#FFEBEE', text: '#B71C1C' },
+    draft:     { bg: '#FFF7ED', text: '#9A3412' },
+    active:    { bg: '#ECFDF5', text: '#065F46' },
+    paused:    { bg: '#FFFBEB', text: '#92400E' },
+    completed: { bg: '#EEF2FF', text: '#3730A3' },
+    cancelled: { bg: '#FEF2F2', text: '#991B1B' },
   },
 
   // Contribution / payment status colours
   payment: {
-    pending:  { bg: '#FFF8E1', text: '#7A5C00' },
-    paid:     { bg: '#E8F5E9', text: '#1B5E20' },
-    overdue:  { bg: '#FFEBEE', text: '#B71C1C' },
-    verified: { bg: '#E3F2FD', text: '#0D47A1' },
+    pending:  { bg: '#FFFBEB', text: '#92400E' },
+    paid:     { bg: '#ECFDF5', text: '#065F46' },
+    overdue:  { bg: '#FEF2F2', text: '#991B1B' },
+    verified: { bg: '#EEF2FF', text: '#3730A3' },
   },
 } as const;
 
@@ -86,19 +86,19 @@ export const shadows = {
 
 export const typography = {
   fontFamily: `'Inter', 'Roboto', 'Helvetica Neue', Arial, sans-serif`,
-  h1: { fontSize: '2.25rem', fontWeight: 700, lineHeight: 1.2, letterSpacing: '-0.02em' },
-  h2: { fontSize: '1.875rem', fontWeight: 700, lineHeight: 1.25, letterSpacing: '-0.015em' },
-  h3: { fontSize: '1.5rem',   fontWeight: 600, lineHeight: 1.3,  letterSpacing: '-0.01em' },
-  h4: { fontSize: '1.25rem',  fontWeight: 600, lineHeight: 1.35 },
-  h5: { fontSize: '1.125rem', fontWeight: 600, lineHeight: 1.4 },
-  h6: { fontSize: '1rem',     fontWeight: 600, lineHeight: 1.5 },
-  subtitle1: { fontSize: '0.9375rem', fontWeight: 500, lineHeight: 1.5 },
-  subtitle2: { fontSize: '0.875rem',  fontWeight: 500, lineHeight: 1.43 },
-  body1:     { fontSize: '0.9375rem', fontWeight: 400, lineHeight: 1.6 },
-  body2:     { fontSize: '0.875rem',  fontWeight: 400, lineHeight: 1.57 },
-  caption:   { fontSize: '0.75rem',   fontWeight: 400, lineHeight: 1.5 },
-  overline:  { fontSize: '0.6875rem', fontWeight: 600, lineHeight: 1.5, letterSpacing: '0.08em', textTransform: 'uppercase' as const },
-  button:    { fontSize: '0.875rem',  fontWeight: 600, lineHeight: 1.5,  letterSpacing: '0.02em', textTransform: 'none' as const },
+  h1: { fontSize: '2.25rem', fontWeight: 700, lineHeight: 1.15, letterSpacing: '-0.02em' },
+  h2: { fontSize: '1.875rem', fontWeight: 700, lineHeight: 1.2,  letterSpacing: '-0.015em' },
+  h3: { fontSize: '1.5rem',   fontWeight: 600, lineHeight: 1.25, letterSpacing: '-0.01em' },
+  h4: { fontSize: '1.25rem',  fontWeight: 600, lineHeight: 1.3 },
+  h5: { fontSize: '1.125rem', fontWeight: 600, lineHeight: 1.3 },
+  h6: { fontSize: '1rem',     fontWeight: 600, lineHeight: 1.35 },
+  subtitle1: { fontSize: '0.9375rem', fontWeight: 500, lineHeight: 1.4 },
+  subtitle2: { fontSize: '0.875rem',  fontWeight: 500, lineHeight: 1.35 },
+  body1:     { fontSize: '0.9375rem', fontWeight: 400, lineHeight: 1.5 },
+  body2:     { fontSize: '0.875rem',  fontWeight: 400, lineHeight: 1.45 },
+  caption:   { fontSize: '0.75rem',   fontWeight: 400, lineHeight: 1.4 },
+  overline:  { fontSize: '0.6875rem', fontWeight: 600, lineHeight: 1.4, letterSpacing: '0.08em', textTransform: 'uppercase' as const },
+  button:    { fontSize: '0.875rem',  fontWeight: 600, lineHeight: 1.4, letterSpacing: '0.02em', textTransform: 'none' as const },
 } as const;
 
 export const breakpoints = {

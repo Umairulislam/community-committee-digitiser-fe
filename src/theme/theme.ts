@@ -129,11 +129,11 @@ export const theme = createTheme({
           borderColor: colors.border.default,
           '&:hover': {
             borderColor: colors.primary.main,
-            backgroundColor: 'rgba(21,101,192,0.04)',
+            backgroundColor: 'rgba(82,40,204,0.04)',
           },
         },
         text: {
-          '&:hover': { backgroundColor: 'rgba(21,101,192,0.06)' },
+          '&:hover': { backgroundColor: 'rgba(82,40,204,0.06)' },
         },
       },
     },
