@@ -181,7 +181,7 @@ export function AppShell({ children }: AppShellProps) {
               </Typography>
             </Box>
             <Divider />
-            <MenuItem onClick={handleMenuClose}>
+            <MenuItem onClick={() => { handleMenuClose(); router.push('/profile'); }}>
               <ListItemIcon>
                 <PersonOutlinedIcon fontSize="small" />
               </ListItemIcon>
