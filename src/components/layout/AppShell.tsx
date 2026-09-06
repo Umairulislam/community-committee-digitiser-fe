@@ -23,6 +23,7 @@ import LogoutOutlinedIcon from '@mui/icons-material/LogoutOutlined';
 import PersonOutlinedIcon from '@mui/icons-material/PersonOutlined';
 import DashboardOutlinedIcon from '@mui/icons-material/DashboardOutlined';
 import GroupsOutlinedIcon from '@mui/icons-material/GroupsOutlined';
+import SmartToyOutlinedIcon from '@mui/icons-material/SmartToyOutlined';
 import { useAuth, useLogoutMutation } from '@/features/auth';
 import { useGetUnreadCountQuery } from '@/features/notifications';
 import { getInitials } from '@/utils';
@@ -111,6 +112,14 @@ export function AppShell({ children }: AppShellProps) {
               sx={{ textTransform: 'none' }}
             >
               Committees
+            </Button>
+            <Button
+              color={isActive('/assistant') ? 'primary' : 'inherit'}
+              startIcon={<SmartToyOutlinedIcon />}
+              onClick={() => router.push('/assistant')}
+              sx={{ textTransform: 'none' }}
+            >
+              Assistant
             </Button>
           </Box>
 
