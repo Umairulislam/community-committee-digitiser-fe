@@ -5,7 +5,7 @@ import type { NextRequest } from 'next/server';
  * Routes that require authentication.
  * If the `jwt` HTTP-only cookie is absent the user is redirected to /login.
  */
-const PROTECTED_PREFIXES = ['/dashboard', '/admin', '/committees', '/profile', '/notifications', '/assistant'];
+const PROTECTED_PREFIXES = ['/dashboard', '/admin', '/committees', '/profile', '/notifications', '/assistant', '/invitations'];
 
 /**
  * Routes that are only accessible to unauthenticated users.

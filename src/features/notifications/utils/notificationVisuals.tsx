@@ -80,12 +80,27 @@ export function notificationTabKey(type: NotificationType): string | null {
 
 /**
  * Resolves the in-app route a notification points at, or null when it has
- * no related committee. Only documented fields (type, committeeId) are used.
+ * no related committee. Only documented fields (type, committeeId, token) are used.
+ *
+ * COMMITTEE_INVITATION navigates to the invitation acceptance page with
+ * the token pre-filled (user is not yet a member, so the committee detail
+ * page would 403).
  */
 export function notificationHref(
-  notification: Pick<Notification, 'type' | 'committeeId'>,
+  notification: Pick<Notification, 'type' | 'committeeId' | 'token'>,
 ): string | null {
   if (!notification.committeeId) return null;
+
+  // Invitation notifications go to the accept page with token pre-filled
+  if (notification.type === 'COMMITTEE_INVITATION') {
+    const params = new URLSearchParams();
+    params.set('committeeId', notification.committeeId);
+    if (notification.token) {
+      params.set('token', notification.token);
+    }
+    return `/invitations/accept?${params.toString()}`;
+  }
+
   const tab = notificationTabKey(notification.type);
   return tab
     ? `/committees/${notification.committeeId}?tab=${tab}`

@@ -196,6 +196,8 @@ export interface Notification {
   message: string;
   read: boolean;
   committeeId: string | null;
+  /** Invitation token — only present for COMMITTEE_INVITATION notifications. */
+  token: string | null;
   createdAt: string;
 }
 
