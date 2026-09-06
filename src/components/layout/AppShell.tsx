@@ -9,8 +9,13 @@ import {
   Box,
   Button,
   Divider,
+  Drawer,
   IconButton,
+  List,
+  ListItem,
+  ListItemButton,
   ListItemIcon,
+  ListItemText,
   Menu,
   MenuItem,
   Toolbar,
@@ -44,6 +49,7 @@ export function AppShell({ children }: AppShellProps) {
   const { data: unreadCountData } = useGetUnreadCountQuery();
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [mobileOpen, setMobileOpen] = useState(false);
   const menuOpen = Boolean(anchorEl);
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
@@ -80,7 +86,12 @@ export function AppShell({ children }: AppShellProps) {
         }}
       >
         <Toolbar>
-          <IconButton edge="start" sx={{ mr: 2, display: { md: 'none' } }}>
+          <IconButton
+            edge="start"
+            sx={{ mr: 2, display: { md: 'none' } }}
+            aria-label="Open navigation menu"
+            onClick={() => setMobileOpen(true)}
+          >
             <MenuOutlinedIcon />
           </IconButton>
 
@@ -205,6 +216,86 @@ export function AppShell({ children }: AppShellProps) {
           </Menu>
         </Toolbar>
       </AppBar>
+
+      {/* Mobile Navigation Drawer */}
+      <Drawer
+        anchor="left"
+        open={mobileOpen}
+        onClose={() => setMobileOpen(false)}
+        slotProps={{
+          paper: { sx: { width: 260 } },
+        }}
+      >
+        <Box sx={{ p: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
+          <DashboardOutlinedIcon sx={{ color: 'primary.main' }} />
+          <Typography
+            variant="h6"
+            sx={{ fontWeight: 700, color: 'text.primary', cursor: 'pointer' }}
+            onClick={() => { setMobileOpen(false); router.push('/dashboard'); }}
+          >
+            Kameti
+          </Typography>
+        </Box>
+        <Divider />
+        <List>
+          <ListItem disablePadding>
+            <ListItemButton
+              selected={isActive('/dashboard')}
+              onClick={() => { setMobileOpen(false); router.push('/dashboard'); }}
+            >
+              <ListItemIcon><DashboardOutlinedIcon /></ListItemIcon>
+              <ListItemText primary="Dashboard" />
+            </ListItemButton>
+          </ListItem>
+          <ListItem disablePadding>
+            <ListItemButton
+              selected={isActive('/committees')}
+              onClick={() => { setMobileOpen(false); router.push('/committees'); }}
+            >
+              <ListItemIcon><GroupsOutlinedIcon /></ListItemIcon>
+              <ListItemText primary="Committees" />
+            </ListItemButton>
+          </ListItem>
+          <ListItem disablePadding>
+            <ListItemButton
+              selected={isActive('/assistant')}
+              onClick={() => { setMobileOpen(false); router.push('/assistant'); }}
+            >
+              <ListItemIcon><SmartToyOutlinedIcon /></ListItemIcon>
+              <ListItemText primary="Assistant" />
+            </ListItemButton>
+          </ListItem>
+          <ListItem disablePadding>
+            <ListItemButton
+              selected={isActive('/notifications')}
+              onClick={() => { setMobileOpen(false); router.push('/notifications'); }}
+            >
+              <ListItemIcon>
+                <Badge badgeContent={unreadCountData?.count ?? 0} color="error" max={99}>
+                  <NotificationsOutlinedIcon />
+                </Badge>
+              </ListItemIcon>
+              <ListItemText primary="Notifications" />
+            </ListItemButton>
+          </ListItem>
+          <Divider sx={{ my: 1 }} />
+          <ListItem disablePadding>
+            <ListItemButton
+              selected={isActive('/profile')}
+              onClick={() => { setMobileOpen(false); router.push('/profile'); }}
+            >
+              <ListItemIcon><PersonOutlinedIcon /></ListItemIcon>
+              <ListItemText primary="Profile" />
+            </ListItemButton>
+          </ListItem>
+          <ListItem disablePadding>
+            <ListItemButton onClick={handleLogout}>
+              <ListItemIcon><LogoutOutlinedIcon /></ListItemIcon>
+              <ListItemText primary="Logout" />
+            </ListItemButton>
+          </ListItem>
+        </List>
+      </Drawer>
 
       {/* Main Content */}
       <Box component="main" sx={{ flexGrow: 1, bgcolor: 'background.default' }}>

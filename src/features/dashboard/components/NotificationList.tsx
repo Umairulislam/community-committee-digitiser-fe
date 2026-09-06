@@ -1,7 +1,9 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import {
   Box,
+  Button,
   Chip,
   List,
   ListItem,
@@ -27,12 +29,16 @@ interface NotificationListProps {
  * Displays a list of recent notifications (dashboard widget).
  */
 export function NotificationList({ notifications, loading }: NotificationListProps) {
+  const router = useRouter();
+
   if (loading) {
     return (
       <Paper sx={{ p: 2.5 }}>
-        <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 2 }}>
-          Recent Notifications
-        </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
+          <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+            Recent Notifications
+          </Typography>
+        </Box>
         {[1, 2, 3].map((i) => (
           <Box key={i} sx={{ display: 'flex', alignItems: 'center', gap: 2, py: 1.5 }}>
             <Box sx={{ width: 36, height: 36, borderRadius: '50%', bgcolor: 'action.hover' }} />
@@ -48,9 +54,20 @@ export function NotificationList({ notifications, loading }: NotificationListPro
 
   return (
     <Paper sx={{ p: 2.5 }}>
-      <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>
-        Recent Notifications
-      </Typography>
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
+        <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+          Recent Notifications
+        </Typography>
+        {notifications.length > 0 && (
+          <Button
+            size="small"
+            onClick={() => router.push('/notifications')}
+            sx={{ textTransform: 'none' }}
+          >
+            View all
+          </Button>
+        )}
+      </Box>
       {notifications.length === 0 ? (
         <Box sx={{ py: 4, textAlign: 'center' }}>
           <MarkEmailReadOutlinedIcon sx={{ fontSize: 48, color: 'text.disabled', mb: 1 }} />

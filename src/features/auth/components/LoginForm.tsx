@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import {
   Alert,
   Box,
@@ -21,10 +21,15 @@ import { useAppDispatch } from '@/store/hooks';
 
 export function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const dispatch = useAppDispatch();
   const [login, { isLoading }] = useLoginMutation();
   const [serverError, setServerError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
+
+  // The proxy middleware sets ?redirect=<path> when an unauthenticated user
+  // tries to access a protected route. After login, redirect back to it.
+  const redirectTo = searchParams.get('redirect') || '/dashboard';
 
   const {
     register,
@@ -43,7 +48,7 @@ export function LoginForm() {
     try {
       const result = await login(data).unwrap();
       dispatch(setUser(result.user));
-      router.push('/dashboard');
+      router.push(redirectTo);
     } catch (err: unknown) {
       const error = err as { data?: { message?: string }; status?: number };
       if (error.status === 401) {

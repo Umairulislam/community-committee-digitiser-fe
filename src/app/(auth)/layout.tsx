@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
-import { Box, Paper, ThemeProvider } from '@mui/material';
-import { theme } from '@/theme/theme';
+import { Box, Paper } from '@mui/material';
 
 export const metadata: Metadata = {
   title: 'Authentication',
@@ -25,7 +24,8 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
           maxWidth: 440,
           p: { xs: 3, sm: 4 },
           borderRadius: '16px',
-          border: '1px solid #DDE1EA',
+          border: '1px solid',
+          borderColor: 'border.default',
         }}
       >
         {children}
