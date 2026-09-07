@@ -16,7 +16,7 @@ import ErrorOutlineOutlinedIcon from '@mui/icons-material/ErrorOutlineOutlined';
 import MailOutlineOutlinedIcon from '@mui/icons-material/MailOutlineOutlined';
 import GroupsOutlinedIcon from '@mui/icons-material/GroupsOutlined';
 import { useAcceptInvitationMutation } from '../api/invitationsApi';
-import type { AcceptedInvitation } from '../types';
+import type { AcceptInvitationResponse } from '../types';
 
 /**
  * Classifies backend error responses into user-friendly messages.
@@ -55,14 +55,14 @@ export function AcceptInvitation() {
   const committeeIdFromUrl = searchParams.get('committeeId') ?? '';
 
   const [token, setToken] = useState(tokenFromUrl);
-  const [accepted, setAccepted] = useState<AcceptedInvitation | null>(null);
+  const [accepted, setAccepted] = useState<AcceptInvitationResponse | null>(null);
   const [acceptInvitation, { isLoading, error }] = useAcceptInvitationMutation();
 
   // Auto-redirect after successful acceptance
   useEffect(() => {
     if (accepted) {
       const timer = setTimeout(() => {
-        router.replace(`/committees/${accepted.committeeId}`);
+        router.replace(`/committees/${accepted.invitation.committeeId}`);
       }, 2000);
       return () => clearTimeout(timer);
     }
@@ -101,7 +101,7 @@ export function AcceptInvitation() {
           Invitation Accepted!
         </Typography>
         <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
-          You have joined <strong>{accepted.committee.name}</strong>.
+          You have joined <strong>{accepted.invitation.committee.name}</strong>.
         </Typography>
         <Typography variant="body2" color="text.disabled">
           Redirecting to committee page…

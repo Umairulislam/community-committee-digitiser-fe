@@ -1,5 +1,5 @@
 import { baseApi } from '@/api/baseApi';
-import type { AcceptInvitationParams, AcceptedInvitation } from '../types';
+import type { AcceptInvitationParams, AcceptInvitationResponse } from '../types';
 
 export const invitationsApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -11,12 +11,15 @@ export const invitationsApi = baseApi.injectEndpoints({
      * membership is created (or reactivated if previously REMOVED),
      * and a MEMBER_JOINED audit entry is recorded.
      *
+     * Returns `{ invitation, membership }` where the invitation carries
+     * nested `committee` and `inviter` objects.
+     *
      * Key errors:
      *  - 400: invitation already accepted/cancelled, or expired
      *  - 404: invalid token
      *  - 409: user is already a member
      */
-    acceptInvitation: builder.mutation<AcceptedInvitation, AcceptInvitationParams>({
+    acceptInvitation: builder.mutation<AcceptInvitationResponse, AcceptInvitationParams>({
       query: (body) => ({
         url: '/invitations/accept',
         method: 'POST',

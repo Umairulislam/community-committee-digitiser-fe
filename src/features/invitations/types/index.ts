@@ -19,7 +19,7 @@ export interface InvitationInviter {
   email: string;
 }
 
-/** Full invitation response from POST /invitations/accept. */
+/** Full invitation object nested inside the accept response. */
 export interface AcceptedInvitation {
   id: string;
   committeeId: string;
@@ -32,4 +32,20 @@ export interface AcceptedInvitation {
   createdAt: string;
   committee: InvitationCommittee;
   inviter: InvitationInviter;
+}
+
+/** Membership summary created (or reactivated) by accepting an invitation. */
+export interface InvitationMembership {
+  id: string;
+  committeeId: string;
+  userId: string;
+  role: string;
+  status: string;
+  joinedAt: string | null;
+}
+
+/** Actual response body from POST /invitations/accept — invitation plus membership. */
+export interface AcceptInvitationResponse {
+  invitation: AcceptedInvitation;
+  membership: InvitationMembership;
 }
