@@ -17,7 +17,7 @@ import {
 } from '@mui/material';
 import TaskAltOutlinedIcon from '@mui/icons-material/TaskAltOutlined';
 import BlockOutlinedIcon from '@mui/icons-material/BlockOutlined';
-import type { Cycle, Payment } from '@/types';
+import type { Cycle } from '@/types';
 import { formatCurrency, formatDateTime, getInitials } from '@/utils';
 import { useGetPaymentQuery } from '@/features/payments';
 import { useRejectPaymentMutation, useVerifyPaymentMutation } from '../api/adminContributionsApi';
