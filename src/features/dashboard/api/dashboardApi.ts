@@ -1,10 +1,5 @@
 import { baseApi } from '@/api/baseApi';
-import type {
-  MyCommitteeMembership,
-  PaginatedResponse,
-  Payout,
-  Cycle,
-} from '@/types';
+import type { MyCommitteeMembership, Payout } from '@/types';
 
 /** Query params for paginated list endpoints. */
 interface PaginationParams {
@@ -34,23 +29,10 @@ export const dashboardApi = baseApi.injectEndpoints({
       }),
       providesTags: ['Payout'],
     }),
-
-    /**
-     * List cycles for a specific committee.
-     * GET /committees/:committeeId/cycles
-     */
-    getCycles: builder.query<PaginatedResponse<Cycle>, { committeeId: string; status?: string }>({
-      query: ({ committeeId, ...params }) => ({
-        url: `/committees/${committeeId}/cycles`,
-        params,
-      }),
-      providesTags: ['Cycle'],
-    }),
   }),
 });
 
 export const {
   useGetMyCommitteesQuery,
   useGetMyPayoutsQuery,
-  useGetCyclesQuery,
 } = dashboardApi;

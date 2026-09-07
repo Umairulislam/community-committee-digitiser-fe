@@ -28,8 +28,10 @@ export function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
 
   // The proxy middleware sets ?redirect=<path> when an unauthenticated user
-  // tries to access a protected route. After login, redirect back to it.
-  const redirectTo = searchParams.get('redirect') || '/dashboard';
+  // tries to access a protected route. After login, redirect back to it —
+  // unless it is an admin route and the user is not an admin (or the value
+  // is not a safe relative path).
+  const redirectTo = searchParams.get('redirect') || '';
 
   const {
     register,
@@ -43,12 +45,27 @@ export function LoginForm() {
     },
   });
 
+  /**
+   * Resolves the post-login destination. Admins land on /admin, users on
+   * /dashboard — unless a safe ?redirect= target exists that the user's
+   * role is allowed to visit.
+   */
+  const resolveDestination = (role: string): string => {
+    const isAdmin = role === 'ADMIN';
+    const isSafeRelativePath =
+      redirectTo.startsWith('/') && !redirectTo.startsWith('//');
+    if (isSafeRelativePath && (isAdmin || !redirectTo.startsWith('/admin'))) {
+      return redirectTo;
+    }
+    return isAdmin ? '/admin' : '/dashboard';
+  };
+
   const onSubmit = async (data: LoginFormData) => {
     setServerError(null);
     try {
       const result = await login(data).unwrap();
       dispatch(setUser(result.user));
-      router.push(redirectTo);
+      router.push(resolveDestination(result.user.role));
     } catch (err: unknown) {
       const error = err as { data?: { message?: string }; status?: number };
       if (error.status === 401) {

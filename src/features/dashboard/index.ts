@@ -5,5 +5,4 @@ export { PayoutList } from './components/PayoutList';
 export {
   useGetMyCommitteesQuery,
   useGetMyPayoutsQuery,
-  useGetCyclesQuery,
 } from './api/dashboardApi';
