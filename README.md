@@ -1,36 +1,104 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🤝 Trust Kameti
 
-## Getting Started
+[![Next.js](https://img.shields.io/badge/Next.js%2016-black?logo=next.js)](https://nextjs.org/)
+[![React](https://img.shields.io/badge/React%2019-61DAFB?logo=react&logoColor=black)](https://react.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![MUI](https://img.shields.io/badge/MUI-007FFF?logo=mui&logoColor=white)](https://mui.com/)
+[![Redux Toolkit](https://img.shields.io/badge/Redux%20Toolkit-764ABC?logo=redux&logoColor=white)](https://redux-toolkit.js.org/)
 
-First, run the development server:
+The web frontend for **Trust Kameti** — a transparent and auditable digital committee (kameti) platform. Members track their committees, contributions, payouts and lottery results, while admins manage committees, members, cycles and reports. All data is served by a secure [NestJS backend](https://github.com/Umairulislam/trust-kameti-web), which remains the single source of truth.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## 🎥 Demo
+
+![Trust Kameti demo](project-demo.gif)
+
+## 💡 Features
+
+**👤 User**
+
+- Authentication (register / login)
+- Dashboard with committee, contribution and payout summaries
+- Committee details: members, cycles, contributions, payouts and lottery history
+- Payment history and payout tracking
+- Notifications and profile settings
+- AI Committee Assistant
+
+**🛡️ Admin**
+
+- Admin dashboard
+- Committee and member management
+- Contribution and payment verification
+- Cycle, lottery and payout management
+- Notifications, audit logs/timeline and reports
+
+## 🛠️ Tech Stack
+
+| Technology | Purpose |
+| --- | --- |
+| [Next.js 16](https://nextjs.org/) (App Router) | Framework, routing and server-side rendering |
+| [React 19](https://react.dev/) + [TypeScript](https://www.typescriptlang.org/) | UI development |
+| [Redux Toolkit](https://redux-toolkit.js.org/) + RTK Query | State management and API communication |
+| [Material UI](https://mui.com/) | Component library and theming |
+| [React Hook Form](https://react-hook-form.com/) + [Zod](https://zod.dev/) | Form handling and validation |
+
+## 📁 Project Structure
+
+```
+src/
+├── app/          # App Router pages and layouts
+├── components/   # Reusable UI and layout components
+├── features/     # Feature modules (auth, committees, dashboard, payments, ...)
+├── api/          # RTK Query base API
+├── store/        # Redux store setup
+├── theme/        # MUI theme and design tokens
+├── types/        # Shared TypeScript types
+└── proxy.ts      # Role-based route protection
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🚀 Getting Started
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### ✅ Prerequisites
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- Node.js 20+
+- The [Trust Kameti backend API](https://github.com/Umairulislam/trust-kameti-web) running locally (NestJS + PostgreSQL + Redis)
 
-## Learn More
+### ⚙️ Installation
 
-To learn more about Next.js, take a look at the following resources:
+1. Clone the repository and install dependencies:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+   ```bash
+   npm install
+   ```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+2. Copy the environment example and point it at your backend:
 
-## Deploy on Vercel
+   ```bash
+   cp .env.example .env.local
+   ```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+   ```env
+   NEXT_PUBLIC_API_URL=http://localhost:3001
+   ```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+3. Start the development server:
+
+   ```bash
+   npm run dev
+   ```
+
+   Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+### 📜 Available Scripts
+
+| Command | Description |
+| --- | --- |
+| `npm run dev` | Start the development server |
+| `npm run build` | Build for production |
+| `npm run start` | Start the production server |
+| `npm run lint` | Run ESLint |
+
+## 🔗 Backend API
+
+This frontend consumes the Trust Kameti REST API, built with NestJS:
+
+**Repository:** [https://github.com/Umairulislam/trust-kameti-web](https://github.com/Umairulislam/trust-kameti-web)

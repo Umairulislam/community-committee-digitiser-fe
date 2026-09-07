@@ -7,7 +7,7 @@ export const metadata: Metadata = {
     default: 'Admin · Kameti',
     template: '%s · Kameti Admin',
   },
-  description: 'Community Committee Digitiser — administration panel',
+  description: 'Trust Kameti — administration panel',
 };
 
 /**

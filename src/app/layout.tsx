@@ -10,8 +10,8 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: {
-    default: 'Community Committee Digitiser',
-    template: '%s | Community Committee Digitiser',
+    default: 'Trust Kameti',
+    template: '%s | Trust Kameti',
   },
   description:
     'A transparent and auditable digital platform for managing community committees (kameti) — contributions, cycles, lottery, and payouts.',
