@@ -94,7 +94,7 @@ export const typography = {
   h6: { fontSize: '1rem',     fontWeight: 600, lineHeight: 1.35 },
   subtitle1: { fontSize: '0.9375rem', fontWeight: 500, lineHeight: 1.4 },
   subtitle2: { fontSize: '0.875rem',  fontWeight: 500, lineHeight: 1.35 },
-  body1:     { fontSize: '0.9375rem', fontWeight: 400, lineHeight: 1.5 },
+  body1:     { fontSize: '0.9375rem', fontWeight: 400, lineHeight: 1 },
   body2:     { fontSize: '0.875rem',  fontWeight: 400, lineHeight: 1.45 },
   caption:   { fontSize: '0.75rem',   fontWeight: 400, lineHeight: 1.4 },
   overline:  { fontSize: '0.6875rem', fontWeight: 600, lineHeight: 1.4, letterSpacing: '0.08em', textTransform: 'uppercase' as const },
