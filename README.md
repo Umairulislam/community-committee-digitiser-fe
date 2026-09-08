@@ -10,7 +10,7 @@ The web frontend for **Trust Kameti** — a transparent and auditable digital co
 
 ## 🎥 Demo
 
-![Trust Kameti demo](project-demo.gif)
+![Trust Kameti demo](./public/project-demo.gif)
 
 ## 💡 Features
 
