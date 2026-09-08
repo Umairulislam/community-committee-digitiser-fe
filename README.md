@@ -101,4 +101,4 @@ src/
 
 This frontend consumes the Trust Kameti REST API, built with NestJS:
 
-**Repository:** [https://github.com/Umairulislam/trust-kameti-web](https://github.com/Umairulislam/trust-kameti-web)
+**Repository:** [https://github.com/Umairulislam/trust-kameti-web](https://github.com/Umairulislam/trust-kameti-api)
