@@ -1,12 +1,8 @@
 # 🤝 Trust Kameti
 
-[![Next.js](https://img.shields.io/badge/Next.js%2016-black?logo=next.js)](https://nextjs.org/)
-[![React](https://img.shields.io/badge/React%2019-61DAFB?logo=react&logoColor=black)](https://react.dev/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![MUI](https://img.shields.io/badge/MUI-007FFF?logo=mui&logoColor=white)](https://mui.com/)
-[![Redux Toolkit](https://img.shields.io/badge/Redux%20Toolkit-764ABC?logo=redux&logoColor=white)](https://redux-toolkit.js.org/)
+**Trust Kameti** is a transparent and auditable digital platform for managing community savings groups (kametis). Members can track contributions, payments, payouts, lottery results and committee activity, while organisers can manage committees, members, cycles, payments and reports from one place.
 
-The web frontend for **Trust Kameti** — a transparent and auditable digital committee (kameti) platform. Members track their committees, contributions, payouts and lottery results, while admins manage committees, members, cycles and reports. All data is served by a secure [NestJS backend](https://github.com/Umairulislam/trust-kameti-web), which remains the single source of truth.
+This repository contains the **frontend application**. The backend remains the source of truth for committee data, payment verification, lottery execution and audit records.
 
 ## 🎥 Demo
 
@@ -14,42 +10,57 @@ The web frontend for **Trust Kameti** — a transparent and auditable digital co
 
 ## 💡 Features
 
-**👤 User**
+### Member
 
-- Authentication (register / login)
+- Secure registration and login
 - Dashboard with committee, contribution and payout summaries
-- Committee details: members, cycles, contributions, payouts and lottery history
+- Committee details with members, cycles, contributions and payouts
 - Payment history and payout tracking
-- Notifications and profile settings
+- Lottery results and committee timeline
+- Notifications and profile management
 - AI Committee Assistant
 
-**🛡️ Admin**
+### Admin / Organiser
 
 - Admin dashboard
 - Committee and member management
-- Contribution and payment verification
+- Contribution tracking and payment verification
 - Cycle, lottery and payout management
-- Notifications, audit logs/timeline and reports
+- Payment reminders and notifications
+- Audit logs and reports
 
 ## 🛠️ Tech Stack
 
-| Technology | Purpose |
-| --- | --- |
-| [Next.js 16](https://nextjs.org/) (App Router) | Framework, routing and server-side rendering |
-| [React 19](https://react.dev/) + [TypeScript](https://www.typescriptlang.org/) | UI development |
-| [Redux Toolkit](https://redux-toolkit.js.org/) + RTK Query | State management and API communication |
-| [Material UI](https://mui.com/) | Component library and theming |
-| [React Hook Form](https://react-hook-form.com/) + [Zod](https://zod.dev/) | Form handling and validation |
+[![Next.js](https://img.shields.io/badge/Next.js%2016-black?logo=next.js)](https://nextjs.org/)
+[![React](https://img.shields.io/badge/React%2019-61DAFB?logo=react&logoColor=black)](https://react.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Redux Toolkit](https://img.shields.io/badge/Redux%20Toolkit-764ABC?logo=redux&logoColor=white)](https://redux-toolkit.js.org/)
+[![MUI](https://img.shields.io/badge/MUI-007FFF?logo=mui&logoColor=white)](https://mui.com/)
+[![React Hook Form](https://img.shields.io/badge/React%20Hook%20Form-EC5990?logo=reacthookform&logoColor=white)](https://react-hook-form.com/)
+[![Zod](https://img.shields.io/badge/Zod-3E67B1?logo=zod&logoColor=white)](https://zod.dev/)
+
+## 🤖 AI Assistant
+
+Trust Kameti includes a focused **AI Committee Assistant** that helps authenticated members understand their authorised committee data.
+
+It can answer questions about contributions, payment status, upcoming dues, payouts and lottery results. The assistant does **not** make financial decisions, select lottery winners or modify committee records.
+
+## 🔗 Backend API
+
+The frontend consumes the Trust Kameti REST API built with **NestJS, TypeScript, PostgreSQL and Prisma**.
+
+**Backend repository:**  
+https://github.com/Umairulislam/trust-kameti-api
 
 ## 📁 Project Structure
 
-```
+```text
 src/
 ├── app/          # App Router pages and layouts
 ├── components/   # Reusable UI and layout components
-├── features/     # Feature modules (auth, committees, dashboard, payments, ...)
-├── api/          # RTK Query base API
-├── store/        # Redux store setup
+├── features/     # Feature modules
+├── api/          # RTK Query API setup
+├── store/        # Redux store
 ├── theme/        # MUI theme and design tokens
 ├── types/        # Shared TypeScript types
 └── proxy.ts      # Role-based route protection
@@ -57,48 +68,49 @@ src/
 
 ## 🚀 Getting Started
 
-### ✅ Prerequisites
+### Prerequisites
 
 - Node.js 20+
-- The [Trust Kameti backend API](https://github.com/Umairulislam/trust-kameti-web) running locally (NestJS + PostgreSQL + Redis)
+- Trust Kameti backend running locally
 
-### ⚙️ Installation
+### Installation
 
-1. Clone the repository and install dependencies:
+```bash
+git clone <your-frontend-repository-url>
+cd trust-kameti-frontend
+npm install
+```
 
-   ```bash
-   npm install
-   ```
+Create your local environment file:
 
-2. Copy the environment example and point it at your backend:
+```bash
+cp .env.example .env.local
+```
 
-   ```bash
-   cp .env.example .env.local
-   ```
+```env
+NEXT_PUBLIC_API_URL=http://localhost:3001
+```
 
-   ```env
-   NEXT_PUBLIC_API_URL=http://localhost:3001
-   ```
+Start the development server:
 
-3. Start the development server:
+```bash
+npm run dev
+```
 
-   ```bash
-   npm run dev
-   ```
+Open http://localhost:3000 in your browser.
 
-   Open [http://localhost:3000](http://localhost:3000) in your browser.
-
-### 📜 Available Scripts
+### Available Scripts
 
 | Command | Description |
 | --- | --- |
 | `npm run dev` | Start the development server |
-| `npm run build` | Build for production |
+| `npm run build` | Create a production build |
 | `npm run start` | Start the production server |
 | `npm run lint` | Run ESLint |
 
-## 🔗 Backend API
+## 👨‍💻 Author
 
-This frontend consumes the Trust Kameti REST API, built with NestJS:
+**Umair Ul Islam**
 
-**Repository:** [https://github.com/Umairulislam/trust-kameti-api](https://github.com/Umairulislam/trust-kameti-api)
+Frontend Developer  
+Portfolio: https://engrumairulislam.netlify.app/
