@@ -36,13 +36,13 @@ Login/register responses set the cookie automatically — send requests with `cr
 
 **Authorization levels used throughout this document:**
 
-| Level | Meaning |
-|---|---|
-| Public | No authentication required (`@Public()` decorator) |
-| User | Any authenticated user with an ACTIVE account |
-| Platform Admin | Authenticated user with `role: ADMIN` (enforced by `AdminGuard`) |
-| Committee Admin | Service-level check: requesting user is the committee's creator (`committee.createdBy`) |
-| Committee Member | Creator or a member with a non-REMOVED membership |
+| Level            | Meaning                                                                                 |
+| ---------------- | --------------------------------------------------------------------------------------- |
+| Public           | No authentication required (`@Public()` decorator)                                      |
+| User             | Any authenticated user with an ACTIVE account                                           |
+| Platform Admin   | Authenticated user with `role: ADMIN` (enforced by `AdminGuard`)                        |
+| Committee Admin  | Service-level check: requesting user is the committee's creator (`committee.createdBy`) |
+| Committee Member | Creator or a member with a non-REMOVED membership                                       |
 
 Several write endpoints require **Platform Admin + Committee Admin** (both the role guard and the
 creator check apply). See [Notes and Known Ambiguities](#notes-and-known-ambiguities).
@@ -107,12 +107,12 @@ Create a new account (default role `USER`, status `ACTIVE`) and log the user in.
 
 **Request body:**
 
-| Field | Type | Required | Constraints |
-|---|---|---|---|
-| name | string | yes | non-empty |
-| email | string | yes | valid email, unique |
-| password | string | yes | min 8 characters |
-| phone | string | no | — |
+| Field    | Type   | Required | Constraints         |
+| -------- | ------ | -------- | ------------------- |
+| name     | string | yes      | non-empty           |
+| email    | string | yes      | valid email, unique |
+| password | string | yes      | min 8 characters    |
+| phone    | string | no       | —                   |
 
 **Success response (`201`):** `{ message, user }` where `user` is the safe user object (no `passwordHash`). Sets the `jwt` cookie.
 
@@ -159,10 +159,10 @@ Authenticate with email/password and receive the session cookie.
 
 **Request body:**
 
-| Field | Type | Required | Constraints |
-|---|---|---|---|
-| email | string | yes | valid email |
-| password | string | yes | non-empty |
+| Field    | Type   | Required | Constraints |
+| -------- | ------ | -------- | ----------- |
+| email    | string | yes      | valid email |
+| password | string | yes      | non-empty   |
 
 **Success response (`201`):** `{ message, user }`. Sets the `jwt` cookie.
 
@@ -218,7 +218,8 @@ POST /auth/logout
 
 Return the authenticated user's profile.
 
-**Auth:** User
+**Auth:** Active `USER` or `ADMIN`, using the `jwt` cookie. Returns only the caller's
+profile; no user ID is accepted to select another account.
 
 **Success response (`200`):** safe user object.
 
@@ -246,6 +247,58 @@ Cookie: jwt=<token>
 
 ---
 
+### PATCH /auth/me
+
+Update the current authenticated profile. Available to both `USER` and `ADMIN`
+accounts with `ACTIVE` status. The backend takes the user ID from the JWT session.
+
+**Request body:** `UpdateProfileDto`. Provide at least one supported field.
+
+| Field | Type           | Required | Constraints                                                                  |
+| ----- | -------------- | -------- | ---------------------------------------------------------------------------- |
+| name  | string         | no       | trimmed, non-empty, maximum 100 characters; cannot be null                   |
+| phone | string or null | no       | strings are trimmed, non-empty, maximum 32 characters; null clears the phone |
+
+Omitted fields retain their current values. Phone numbers remain free-form strings,
+consistent with registration; this endpoint does not verify phone ownership.
+
+Unknown fields are rejected with `400`, including `email`, `role`, `status`,
+`password`, `passwordHash`, IDs, ownership fields, timestamps and relation objects.
+Notification preferences are not supported by the current Prisma schema and cannot
+be updated. No schema migration is required.
+
+**Success response (`200`):** updated safe user object, with the same shape as
+`GET /auth/me`; never includes `passwordHash`.
+
+**Key errors:** `400` invalid fields or empty update; `401` missing, invalid or
+expired cookie, deleted account, or inactive/suspended account.
+
+```http
+PATCH /auth/me
+Cookie: jwt=<token>
+Content-Type: application/json
+
+{
+  "name": "Ayesha Ahmed",
+  "phone": "+92 300 7654321"
+}
+```
+
+```json
+{
+  "id": "b1f3c2a4-5d6e-4f7a-8b9c-0d1e2f3a4b5c",
+  "name": "Ayesha Ahmed",
+  "email": "ayesha@example.com",
+  "phone": "+92 300 7654321",
+  "role": "USER",
+  "status": "ACTIVE",
+  "createdAt": "2026-09-04T09:00:00.000Z",
+  "updatedAt": "2026-09-09T09:00:00.000Z"
+}
+```
+
+---
+
 ## Committees
 
 > **Note:** The entire Committees controller is guarded by the platform-level `AdminGuard`
@@ -259,15 +312,15 @@ Create a committee. The creator becomes the committee admin. Records a `COMMITTE
 
 **Request body:**
 
-| Field | Type | Required | Constraints |
-|---|---|---|---|
-| name | string | yes | non-empty |
-| description | string | no | — |
-| contributionAmount | number | yes | ≥ 1, max 2 decimal places |
-| memberLimit | integer | yes | ≥ 2 |
-| totalCycles | integer | yes | ≥ 1 |
-| startDate | string | yes | ISO 8601 date |
-| dueDay | integer | yes | 1–31 |
+| Field              | Type    | Required | Constraints               |
+| ------------------ | ------- | -------- | ------------------------- |
+| name               | string  | yes      | non-empty                 |
+| description        | string  | no       | —                         |
+| contributionAmount | number  | yes      | ≥ 1, max 2 decimal places |
+| memberLimit        | integer | yes      | ≥ 2                       |
+| totalCycles        | integer | yes      | ≥ 1                       |
+| startDate          | string  | yes      | ISO 8601 date             |
+| dueDay             | integer | yes      | 1–31                      |
 
 **Success response (`201`):** Committee object with nested `creator`.
 
@@ -325,11 +378,11 @@ List committees **created by the requesting admin**, newest first.
 
 **Query params:**
 
-| Param | Type | Default | Notes |
-|---|---|---|---|
-| status | enum `CommitteeStatus` | — | filter |
-| page | integer ≥ 1 | 1 | |
-| limit | integer ≥ 1 | 10 | |
+| Param  | Type                   | Default | Notes  |
+| ------ | ---------------------- | ------- | ------ |
+| status | enum `CommitteeStatus` | —       | filter |
+| page   | integer ≥ 1            | 1       |        |
+| limit  | integer ≥ 1            | 10      |        |
 
 **Success response (`200`):** pagination envelope of committees with `creator`.
 
@@ -359,7 +412,11 @@ Cookie: jwt=<admin-token>
       "createdBy": "a0b1c2d3-e4f5-4a6b-8c7d-9e0f1a2b3c4e",
       "createdAt": "2026-09-04T09:05:00.000Z",
       "updatedAt": "2026-09-04T10:00:00.000Z",
-      "creator": { "id": "a0b1c2d3-e4f5-4a6b-8c7d-9e0f1a2b3c4e", "name": "Bilal Ahmed", "email": "bilal@example.com" }
+      "creator": {
+        "id": "a0b1c2d3-e4f5-4a6b-8c7d-9e0f1a2b3c4e",
+        "name": "Bilal Ahmed",
+        "email": "bilal@example.com"
+      }
     }
   ],
   "total": 1,
@@ -400,7 +457,11 @@ Cookie: jwt=<admin-token>
   "createdBy": "a0b1c2d3-e4f5-4a6b-8c7d-9e0f1a2b3c4e",
   "createdAt": "2026-09-04T09:05:00.000Z",
   "updatedAt": "2026-09-04T10:00:00.000Z",
-  "creator": { "id": "a0b1c2d3-e4f5-4a6b-8c7d-9e0f1a2b3c4e", "name": "Bilal Ahmed", "email": "bilal@example.com" }
+  "creator": {
+    "id": "a0b1c2d3-e4f5-4a6b-8c7d-9e0f1a2b3c4e",
+    "name": "Bilal Ahmed",
+    "email": "bilal@example.com"
+  }
 }
 ```
 
@@ -445,7 +506,11 @@ Response (`200`):
   "createdBy": "a0b1c2d3-e4f5-4a6b-8c7d-9e0f1a2b3c4e",
   "createdAt": "2026-09-04T09:05:00.000Z",
   "updatedAt": "2026-09-04T09:10:00.000Z",
-  "creator": { "id": "a0b1c2d3-e4f5-4a6b-8c7d-9e0f1a2b3c4e", "name": "Bilal Ahmed", "email": "bilal@example.com" }
+  "creator": {
+    "id": "a0b1c2d3-e4f5-4a6b-8c7d-9e0f1a2b3c4e",
+    "name": "Bilal Ahmed",
+    "email": "bilal@example.com"
+  }
 }
 ```
 
@@ -460,9 +525,9 @@ Executed atomically with a `COMMITTEE_STATUS_CHANGED` audit entry; notifies acti
 
 **Request body:**
 
-| Field | Type | Required | Constraints |
-|---|---|---|---|
-| status | enum `CommitteeStatus` | yes | see lifecycle above |
+| Field  | Type                   | Required | Constraints         |
+| ------ | ---------------------- | -------- | ------------------- |
+| status | enum `CommitteeStatus` | yes      | see lifecycle above |
 
 **Success response (`200`):** updated committee with `creator`.
 
@@ -496,7 +561,11 @@ Response (`200`):
   "createdBy": "a0b1c2d3-e4f5-4a6b-8c7d-9e0f1a2b3c4e",
   "createdAt": "2026-09-04T09:05:00.000Z",
   "updatedAt": "2026-09-04T10:00:00.000Z",
-  "creator": { "id": "a0b1c2d3-e4f5-4a6b-8c7d-9e0f1a2b3c4e", "name": "Bilal Ahmed", "email": "bilal@example.com" }
+  "creator": {
+    "id": "a0b1c2d3-e4f5-4a6b-8c7d-9e0f1a2b3c4e",
+    "name": "Bilal Ahmed",
+    "email": "bilal@example.com"
+  }
 }
 ```
 
@@ -573,11 +642,11 @@ List members of a committee, newest first.
 
 **Query params:**
 
-| Param | Type | Default | Notes |
-|---|---|---|---|
-| status | enum `MemberStatus` | — | filter |
-| page | integer ≥ 1 | 1 | |
-| limit | integer ≥ 1 | 10 | |
+| Param  | Type                | Default | Notes  |
+| ------ | ------------------- | ------- | ------ |
+| status | enum `MemberStatus` | —       | filter |
+| page   | integer ≥ 1         | 1       |        |
+| limit  | integer ≥ 1         | 10      |        |
 
 **Success response (`200`):** pagination envelope of member records with nested `user`.
 
@@ -694,10 +763,10 @@ user if they already have an account.
 
 **Request body:**
 
-| Field | Type | Required | Constraints |
-|---|---|---|---|
-| email | string | yes | valid email |
-| expiresAfterDays | integer | no | ≥ 1 (default 7) |
+| Field            | Type    | Required | Constraints     |
+| ---------------- | ------- | -------- | --------------- |
+| email            | string  | yes      | valid email     |
+| expiresAfterDays | integer | no       | ≥ 1 (default 7) |
 
 **Success response (`201`):** invitation with nested `committee` and `inviter`.
 
@@ -728,7 +797,11 @@ Response (`201`):
   "acceptedAt": null,
   "createdAt": "2026-09-04T09:30:00.000Z",
   "committee": { "id": "c9a1b2d3-4e5f-4a6b-8c7d-9e0f1a2b3c4d", "name": "Friday Kameti" },
-  "inviter": { "id": "a0b1c2d3-e4f5-4a6b-8c7d-9e0f1a2b3c4e", "name": "Bilal Ahmed", "email": "bilal@example.com" }
+  "inviter": {
+    "id": "a0b1c2d3-e4f5-4a6b-8c7d-9e0f1a2b3c4e",
+    "name": "Bilal Ahmed",
+    "email": "bilal@example.com"
+  }
 }
 ```
 
@@ -740,11 +813,11 @@ List a committee's invitations, newest first.
 
 **Query params:**
 
-| Param | Type | Default | Notes |
-|---|---|---|---|
-| status | enum `InvitationStatus` | — | filter |
-| page | integer ≥ 1 | 1 | |
-| limit | integer ≥ 1 | 10 | |
+| Param  | Type                    | Default | Notes  |
+| ------ | ----------------------- | ------- | ------ |
+| status | enum `InvitationStatus` | —       | filter |
+| page   | integer ≥ 1             | 1       |        |
+| limit  | integer ≥ 1             | 10      |        |
 
 **Success response (`200`):** pagination envelope of invitations with `committee` and `inviter`.
 
@@ -771,7 +844,11 @@ Cookie: jwt=<admin-token>
       "acceptedAt": null,
       "createdAt": "2026-09-04T09:30:00.000Z",
       "committee": { "id": "c9a1b2d3-4e5f-4a6b-8c7d-9e0f1a2b3c4d", "name": "Friday Kameti" },
-      "inviter": { "id": "a0b1c2d3-e4f5-4a6b-8c7d-9e0f1a2b3c4e", "name": "Bilal Ahmed", "email": "bilal@example.com" }
+      "inviter": {
+        "id": "a0b1c2d3-e4f5-4a6b-8c7d-9e0f1a2b3c4e",
+        "name": "Bilal Ahmed",
+        "email": "bilal@example.com"
+      }
     }
   ],
   "total": 1,
@@ -809,7 +886,11 @@ Cookie: jwt=<admin-token>
   "acceptedAt": "2026-09-04T10:15:00.000Z",
   "createdAt": "2026-09-04T09:30:00.000Z",
   "committee": { "id": "c9a1b2d3-4e5f-4a6b-8c7d-9e0f1a2b3c4d", "name": "Friday Kameti" },
-  "inviter": { "id": "a0b1c2d3-e4f5-4a6b-8c7d-9e0f1a2b3c4e", "name": "Bilal Ahmed", "email": "bilal@example.com" }
+  "inviter": {
+    "id": "a0b1c2d3-e4f5-4a6b-8c7d-9e0f1a2b3c4e",
+    "name": "Bilal Ahmed",
+    "email": "bilal@example.com"
+  }
 }
 ```
 
@@ -825,9 +906,9 @@ and the committee must be in `ACTIVE` status.
 
 **Request body:**
 
-| Field | Type | Required | Constraints |
-|---|---|---|---|
-| token | string | yes | non-empty |
+| Field | Type   | Required | Constraints |
+| ----- | ------ | -------- | ----------- |
+| token | string | yes      | non-empty   |
 
 **Success response (`201`):** object containing the accepted `invitation` (with nested `committee` and `inviter`) and the created/updated `membership`.
 
@@ -859,7 +940,11 @@ Response (`201`):
     "acceptedAt": "2026-09-04T10:15:00.000Z",
     "createdAt": "2026-09-04T09:30:00.000Z",
     "committee": { "id": "c9a1b2d3-4e5f-4a6b-8c7d-9e0f1a2b3c4d", "name": "Friday Kameti" },
-    "inviter": { "id": "a0b1c2d3-e4f5-4a6b-8c7d-9e0f1a2b3c4e", "name": "Bilal Ahmed", "email": "bilal@example.com" }
+    "inviter": {
+      "id": "a0b1c2d3-e4f5-4a6b-8c7d-9e0f1a2b3c4e",
+      "name": "Bilal Ahmed",
+      "email": "bilal@example.com"
+    }
   },
   "membership": {
     "id": "f2a3b4c5-6d7e-8f9a-0b1c-2d3e4f5a6b7c",
@@ -901,7 +986,11 @@ Cookie: jwt=<admin-token>
   "acceptedAt": null,
   "createdAt": "2026-09-05T09:30:00.000Z",
   "committee": { "id": "c9a1b2d3-4e5f-4a6b-8c7d-9e0f1a2b3c4d", "name": "Friday Kameti" },
-  "inviter": { "id": "a0b1c2d3-e4f5-4a6b-8c7d-9e0f1a2b3c4e", "name": "Bilal Ahmed", "email": "bilal@example.com" }
+  "inviter": {
+    "id": "a0b1c2d3-e4f5-4a6b-8c7d-9e0f1a2b3c4e",
+    "name": "Bilal Ahmed",
+    "email": "bilal@example.com"
+  }
 }
 ```
 
@@ -920,9 +1009,9 @@ are `UPCOMING` with `startDate: null`. Each cycle's `totalExpected` is
 
 **Request body:**
 
-| Field | Type | Required | Constraints |
-|---|---|---|---|
-| startDate | string | no | ISO 8601 date; overrides the committee's start date for cycle 1 |
+| Field     | Type   | Required | Constraints                                                     |
+| --------- | ------ | -------- | --------------------------------------------------------------- |
+| startDate | string | no       | ISO 8601 date; overrides the committee's start date for cycle 1 |
 
 **Success response (`201`):** `{ generated, cycles }`.
 
@@ -981,11 +1070,11 @@ List a committee's cycles, ordered by cycle number ascending.
 
 **Query params:**
 
-| Param | Type | Default | Notes |
-|---|---|---|---|
-| status | enum `CycleStatus` | — | filter |
-| page | integer ≥ 1 | 1 | |
-| limit | integer ≥ 1 | 10 | |
+| Param  | Type               | Default | Notes  |
+| ------ | ------------------ | ------- | ------ |
+| status | enum `CycleStatus` | —       | filter |
+| page   | integer ≥ 1        | 1       |        |
+| limit  | integer ≥ 1        | 10      |        |
 
 **Success response (`200`):** pagination envelope of cycles.
 
@@ -1063,9 +1152,9 @@ may be `ACTIVE` at a time. Activating stamps `startDate` (if unset); completing 
 
 **Request body:**
 
-| Field | Type | Required | Constraints |
-|---|---|---|---|
-| status | enum `CycleStatus` | yes | see transitions above |
+| Field  | Type               | Required | Constraints           |
+| ------ | ------------------ | -------- | --------------------- |
+| status | enum `CycleStatus` | yes      | see transitions above |
 
 **Success response (`200`):** updated cycle.
 
@@ -1222,13 +1311,13 @@ Aggregated totals for a cycle's contributions.
 
 **Success response (`200`):**
 
-| Field | Type | Notes |
-|---|---|---|
-| totalExpected | number | sum of all contribution amounts |
-| totalCollected | number | sum of `PAID` amounts |
-| totalPending | number | sum of `PENDING` amounts |
-| totalOverdue | number | sum of `OVERDUE` amounts |
-| memberCount | number | number of contributions |
+| Field          | Type   | Notes                           |
+| -------------- | ------ | ------------------------------- |
+| totalExpected  | number | sum of all contribution amounts |
+| totalCollected | number | sum of `PAID` amounts           |
+| totalPending   | number | sum of `PENDING` amounts        |
+| totalOverdue   | number | sum of `OVERDUE` amounts        |
+| memberCount    | number | number of contributions         |
 
 **Key errors:** `403` no access · `404` committee or cycle not found
 
@@ -1257,11 +1346,11 @@ List a cycle's contributions with the paying member, oldest first.
 
 **Query params:**
 
-| Param | Type | Default | Notes |
-|---|---|---|---|
-| status | enum `ContributionStatus` (`PENDING` \| `PAID` \| `OVERDUE`) | — | filter |
-| page | integer ≥ 1 | 1 | |
-| limit | integer ≥ 1 | 10 | |
+| Param  | Type                                                         | Default | Notes  |
+| ------ | ------------------------------------------------------------ | ------- | ------ |
+| status | enum `ContributionStatus` (`PENDING` \| `PAID` \| `OVERDUE`) | —       | filter |
+| page   | integer ≥ 1                                                  | 1       |        |
+| limit  | integer ≥ 1                                                  | 10      |        |
 
 **Success response (`200`):** pagination envelope of contributions with nested `member.user`.
 
@@ -1391,11 +1480,11 @@ attributed to the contribution's member, not to the submitting user.
 
 **Request body:**
 
-| Field | Type | Required | Constraints |
-|---|---|---|---|
-| contributionId | string | yes | non-empty; must belong to this committee |
-| amount | number | yes | ≥ 0.01, max 2 decimal places; must match the contribution amount (±0.01) |
-| transactionReference | string | yes | non-empty |
+| Field                | Type   | Required | Constraints                                                              |
+| -------------------- | ------ | -------- | ------------------------------------------------------------------------ |
+| contributionId       | string | yes      | non-empty; must belong to this committee                                 |
+| amount               | number | yes      | ≥ 0.01, max 2 decimal places; must match the contribution amount (±0.01) |
+| transactionReference | string | yes      | non-empty                                                                |
 
 **Success response (`201`):** payment with nested `contribution` (incl. `contribution.member.user`).
 
@@ -1459,11 +1548,11 @@ List payments across all of the committee's cycles, newest first.
 
 **Query params:**
 
-| Param | Type | Default | Notes |
-|---|---|---|---|
-| status | enum `PaymentStatus` (`PENDING` \| `VERIFIED` \| `REJECTED`) | — | filter |
-| page | integer ≥ 1 | 1 | |
-| limit | integer ≥ 1 | 10 | |
+| Param  | Type                                                         | Default | Notes  |
+| ------ | ------------------------------------------------------------ | ------- | ------ |
+| status | enum `PaymentStatus` (`PENDING` \| `VERIFIED` \| `REJECTED`) | —       | filter |
+| page   | integer ≥ 1                                                  | 1       |        |
+| limit  | integer ≥ 1                                                  | 10      |        |
 
 **Success response (`200`):** pagination envelope of payments with nested `contribution`.
 
@@ -1664,11 +1753,11 @@ Check whether the cycle can run a lottery, with a reason when it cannot.
 
 **Success response (`200`):**
 
-| Field | Type | Notes |
-|---|---|---|
-| eligible | boolean | |
-| reason | string \| null | why the cycle is not eligible; `null` when eligible |
-| eligibleMemberCount | integer | `0` when not eligible |
+| Field               | Type           | Notes                                               |
+| ------------------- | -------------- | --------------------------------------------------- |
+| eligible            | boolean        |                                                     |
+| reason              | string \| null | why the cycle is not eligible; `null` when eligible |
+| eligibleMemberCount | integer        | `0` when not eligible                               |
 
 **Key errors:** `403` no access · `404` committee or cycle not found
 
@@ -1956,10 +2045,10 @@ Move a payout through its status state machine. Transitioning to `COMPLETED` sta
 
 **Request body:**
 
-| Field | Type | Required | Constraints |
-|---|---|---|---|
-| status | string | yes | `PROCESSING` \| `COMPLETED` \| `FAILED`; must be a valid transition from the current status |
-| reference | string | no | ≤ 255 chars; payout reference (e.g. bank transfer number) |
+| Field     | Type   | Required | Constraints                                                                                 |
+| --------- | ------ | -------- | ------------------------------------------------------------------------------------------- |
+| status    | string | yes      | `PROCESSING` \| `COMPLETED` \| `FAILED`; must be a valid transition from the current status |
+| reference | string | no       | ≤ 255 chars; payout reference (e.g. bank transfer number)                                   |
 
 Valid transitions: `PENDING → PROCESSING`, `PROCESSING → COMPLETED \| FAILED`,
 `FAILED → PROCESSING`. `COMPLETED` has no outgoing transitions.
@@ -2019,11 +2108,11 @@ List all payouts of a committee, newest first.
 
 **Query params:**
 
-| Param | Type | Default | Notes |
-|---|---|---|---|
-| status | enum `PayoutStatus` (`PENDING` \| `PROCESSING` \| `COMPLETED` \| `FAILED`) | — | filter |
-| page | integer ≥ 1 | 1 | |
-| limit | integer ≥ 1 | 10 | |
+| Param  | Type                                                                       | Default | Notes  |
+| ------ | -------------------------------------------------------------------------- | ------- | ------ |
+| status | enum `PayoutStatus` (`PENDING` \| `PROCESSING` \| `COMPLETED` \| `FAILED`) | —       | filter |
+| page   | integer ≥ 1                                                                | 1       |        |
+| limit  | integer ≥ 1                                                                | 10      |        |
 
 **Success response (`200`):** pagination envelope of payouts with nested `cycle` and `member`.
 
@@ -2144,13 +2233,13 @@ List a committee's audit entries, newest first.
 
 **Query params:**
 
-| Param | Type | Default | Notes |
-|---|---|---|---|
-| action | enum `AuditAction` | — | filter (12 values; see Enum Reference) |
-| entityType | string | — | filter (e.g. `Committee`, `Payment`, `LotteryResult`) |
-| cycleId | string | — | filter |
-| page | integer ≥ 1 | 1 | |
-| limit | integer ≥ 1 | 25 | note the higher default |
+| Param      | Type               | Default | Notes                                                 |
+| ---------- | ------------------ | ------- | ----------------------------------------------------- |
+| action     | enum `AuditAction` | —       | filter (12 values; see Enum Reference)                |
+| entityType | string             | —       | filter (e.g. `Committee`, `Payment`, `LotteryResult`) |
+| cycleId    | string             | —       | filter                                                |
+| page       | integer ≥ 1        | 1       |                                                       |
+| limit      | integer ≥ 1        | 25      | note the higher default                               |
 
 **Success response (`200`):** pagination envelope of audit entries.
 
@@ -2248,12 +2337,12 @@ List the authenticated user's notifications, newest first.
 
 **Query params:**
 
-| Param | Type | Default | Notes |
-|---|---|---|---|
-| type | enum `NotificationType` | — | filter (11 values; see Enum Reference) |
-| read | boolean | — | filter (`true`/`false`) |
-| page | integer ≥ 1 | 1 | |
-| limit | integer ≥ 1 | 20 | |
+| Param | Type                    | Default | Notes                                  |
+| ----- | ----------------------- | ------- | -------------------------------------- |
+| type  | enum `NotificationType` | —       | filter (11 values; see Enum Reference) |
+| read  | boolean                 | —       | filter (`true`/`false`)                |
+| page  | integer ≥ 1             | 1       |                                        |
+| limit | integer ≥ 1             | 20      |                                        |
 
 **Success response (`200`):** `{ data, total, unreadCount, page, limit }` — `unreadCount`
 counts ALL unread notifications, ignoring the filters.
@@ -2290,6 +2379,7 @@ Cookie: jwt=<token>
 ```
 
 **Notes:**
+
 - The `token` field is only populated for `COMMITTEE_INVITATION` notifications. It contains the invitation acceptance token, allowing the frontend to deep-link to `/invitations/accept?token=<value>`. For all other notification types, `token` is `null`.
 
 ### GET /notifications/unread-count
@@ -2371,11 +2461,11 @@ committee admin. Authorization is an internal creator check (not `AdminGuard` �
 
 **Request body:**
 
-| Field | Type | Required | Constraints |
-|---|---|---|---|
-| type | string | no | enum `NotificationType`; default `GENERAL` |
-| title | string | yes | non-empty, ≤ 255 chars |
-| message | string | yes | non-empty, ≤ 2000 chars |
+| Field   | Type   | Required | Constraints                                |
+| ------- | ------ | -------- | ------------------------------------------ |
+| type    | string | no       | enum `NotificationType`; default `GENERAL` |
+| title   | string | yes      | non-empty, ≤ 255 chars                     |
+| message | string | yes      | non-empty, ≤ 2000 chars                    |
 
 **Success response (`201`):** `{ "sent": <recipient count> }`
 
@@ -2415,12 +2505,12 @@ plain numbers.
 
 Common query params (apply to all reports that accept them):
 
-| Param | Type | Default | Notes |
-|---|---|---|---|
-| cycleId | UUID string | — | restrict to one cycle |
-| status | string | — | only meaningful for `outstanding` (see below) |
-| page | integer ≥ 1 | 1 | only `outstanding` paginates |
-| limit | integer ≥ 1 | 50 (outstanding) | only `outstanding` paginates |
+| Param   | Type        | Default          | Notes                                         |
+| ------- | ----------- | ---------------- | --------------------------------------------- |
+| cycleId | UUID string | —                | restrict to one cycle                         |
+| status  | string      | —                | only meaningful for `outstanding` (see below) |
+| page    | integer ≥ 1 | 1                | only `outstanding` paginates                  |
+| limit   | integer ≥ 1 | 50 (outstanding) | only `outstanding` paginates                  |
 
 ### GET /committees/:committeeId/reports/summary
 
@@ -2430,23 +2520,23 @@ Committee overview: configuration, member counts, cycle counts.
 
 **Success response (`200`):**
 
-| Field | Type | Notes |
-|---|---|---|
-| committeeId | UUID | |
-| name | string | |
-| description | string \| null | |
-| status | enum `CommitteeStatus` | |
-| contributionAmount | number | |
-| memberLimit | integer | |
-| totalCycles | integer | configured cycle count |
-| dueDay | integer | |
-| startDate | ISO date | |
-| createdBy | string | creator's **name** |
-| createdAt | ISO datetime | |
-| memberCount | integer | |
-| activeMemberCount | integer | |
-| cycleCount | integer | cycles created so far |
-| completedCycleCount | integer | |
+| Field               | Type                   | Notes                  |
+| ------------------- | ---------------------- | ---------------------- |
+| committeeId         | UUID                   |                        |
+| name                | string                 |                        |
+| description         | string \| null         |                        |
+| status              | enum `CommitteeStatus` |                        |
+| contributionAmount  | number                 |                        |
+| memberLimit         | integer                |                        |
+| totalCycles         | integer                | configured cycle count |
+| dueDay              | integer                |                        |
+| startDate           | ISO date               |                        |
+| createdBy           | string                 | creator's **name**     |
+| createdAt           | ISO datetime           |                        |
+| memberCount         | integer                |                        |
+| activeMemberCount   | integer                |                        |
+| cycleCount          | integer                | cycles created so far  |
+| completedCycleCount | integer                |                        |
 
 **Key errors:** `403` no access · `404` committee not found
 
@@ -2489,18 +2579,18 @@ Per-cycle contribution and collection breakdown, ordered by cycle number.
 
 **Success response (`200`):** `{ data }` — per cycle:
 
-| Field | Type | Notes |
-|---|---|---|
-| cycleId | UUID | |
-| cycleNumber | integer | |
-| cycleStatus | enum `CycleStatus` | |
-| totalExpected | number | sum of contribution records |
-| totalCollected | number | from the cycle record |
-| totalPaid | number | sum of `PAID` contribution amounts |
-| contributionCount | integer | |
-| paidCount | integer | |
-| pendingCount | integer | |
-| overdueCount | integer | |
+| Field             | Type               | Notes                              |
+| ----------------- | ------------------ | ---------------------------------- |
+| cycleId           | UUID               |                                    |
+| cycleNumber       | integer            |                                    |
+| cycleStatus       | enum `CycleStatus` |                                    |
+| totalExpected     | number             | sum of contribution records        |
+| totalCollected    | number             | from the cycle record              |
+| totalPaid         | number             | sum of `PAID` contribution amounts |
+| contributionCount | integer            |                                    |
+| paidCount         | integer            |                                    |
+| pendingCount      | integer            |                                    |
+| overdueCount      | integer            |                                    |
 
 **Key errors:** `403` no access · `404` committee not found
 
@@ -2544,19 +2634,19 @@ other values are ignored and both statuses are returned), `page`, `limit`
 
 **Success response (`200`):** `{ data, total, page, limit }` — per contribution:
 
-| Field | Type | Notes |
-|---|---|---|
-| contributionId | UUID | |
-| memberId | UUID | |
-| memberName | string | |
-| memberEmail | string | |
-| memberStatus | enum `MemberStatus` | |
-| cycleNumber | integer | |
-| cycleStatus | enum `CycleStatus` | |
-| amount | number | |
-| status | `PENDING` \| `OVERDUE` | |
-| dueDate | ISO datetime | |
-| daysOverdue | integer | `0` unless `OVERDUE` |
+| Field          | Type                   | Notes                |
+| -------------- | ---------------------- | -------------------- |
+| contributionId | UUID                   |                      |
+| memberId       | UUID                   |                      |
+| memberName     | string                 |                      |
+| memberEmail    | string                 |                      |
+| memberStatus   | enum `MemberStatus`    |                      |
+| cycleNumber    | integer                |                      |
+| cycleStatus    | enum `CycleStatus`     |                      |
+| amount         | number                 |                      |
+| status         | `PENDING` \| `OVERDUE` |                      |
+| dueDate        | ISO datetime           |                      |
+| daysOverdue    | integer                | `0` unless `OVERDUE` |
 
 **Key errors:** `403` no access · `404` committee not found
 
@@ -2602,18 +2692,18 @@ Per-cycle completion status, dates, and collection rate, ordered by cycle number
 
 **Success response (`200`):** `{ data }` — per cycle:
 
-| Field | Type | Notes |
-|---|---|---|
-| cycleId | UUID | |
-| cycleNumber | integer | |
-| status | enum `CycleStatus` | |
-| startDate | ISO datetime \| null | |
-| endDate | ISO datetime \| null | |
-| totalExpected | number | |
-| totalCollected | number | |
-| totalContributions | integer | |
-| paidContributions | integer | |
-| collectionRatePercent | integer | `round(paid / total × 100)`, `0` when no contributions |
+| Field                 | Type                 | Notes                                                  |
+| --------------------- | -------------------- | ------------------------------------------------------ |
+| cycleId               | UUID                 |                                                        |
+| cycleNumber           | integer              |                                                        |
+| status                | enum `CycleStatus`   |                                                        |
+| startDate             | ISO datetime \| null |                                                        |
+| endDate               | ISO datetime \| null |                                                        |
+| totalExpected         | number               |                                                        |
+| totalCollected        | number               |                                                        |
+| totalContributions    | integer              |                                                        |
+| paidContributions     | integer              |                                                        |
+| collectionRatePercent | integer              | `round(paid / total × 100)`, `0` when no contributions |
 
 **Key errors:** `403` no access · `404` committee not found
 
@@ -2655,22 +2745,22 @@ Per-cycle lottery and payout status, ordered by cycle number.
 
 **Success response (`200`):** `{ data }` — per cycle:
 
-| Field | Type | Notes |
-|---|---|---|
-| cycleId | UUID | |
-| cycleNumber | integer | |
-| cycleStatus | enum `CycleStatus` | |
-| totalCollected | number | |
-| lotteryExecuted | boolean | |
-| lotteryExecutedAt | ISO datetime \| null | |
-| eligibleMemberCount | integer | `0` when no lottery |
-| winnerName | string \| null | |
-| winnerEmail | string \| null | |
-| payoutCreated | boolean | |
-| payoutAmount | number | `0` when no payout |
-| payoutStatus | enum `PayoutStatus` \| null | |
-| payoutPaidAt | ISO datetime \| null | |
-| payoutReference | string \| null | |
+| Field               | Type                        | Notes               |
+| ------------------- | --------------------------- | ------------------- |
+| cycleId             | UUID                        |                     |
+| cycleNumber         | integer                     |                     |
+| cycleStatus         | enum `CycleStatus`          |                     |
+| totalCollected      | number                      |                     |
+| lotteryExecuted     | boolean                     |                     |
+| lotteryExecutedAt   | ISO datetime \| null        |                     |
+| eligibleMemberCount | integer                     | `0` when no lottery |
+| winnerName          | string \| null              |                     |
+| winnerEmail         | string \| null              |                     |
+| payoutCreated       | boolean                     |                     |
+| payoutAmount        | number                      | `0` when no payout  |
+| payoutStatus        | enum `PayoutStatus` \| null |                     |
+| payoutPaidAt        | ISO datetime \| null        |                     |
+| payoutReference     | string \| null              |                     |
 
 **Key errors:** `403` no access · `404` committee not found
 
@@ -2716,22 +2806,22 @@ Per-member participation summary, ordered by join date.
 
 **Success response (`200`):** `{ data }` — per member:
 
-| Field | Type | Notes |
-|---|---|---|
-| memberId | UUID | |
-| memberName | string | |
-| memberEmail | string | |
-| memberStatus | enum `MemberStatus` | |
-| memberRole | enum `MemberRole` | |
-| joinedAt | ISO datetime | |
-| totalCycles | integer | contribution records |
-| paidCycles | integer | |
-| pendingCycles | integer | |
-| overdueCycles | integer | |
-| totalAmountContributed | number | sum of `PAID` contributions |
-| totalAmountPaid | number | sum of `VERIFIED` payments |
-| lotteryWins | integer | |
-| totalPayoutReceived | number | sum of `COMPLETED` payouts |
+| Field                  | Type                | Notes                       |
+| ---------------------- | ------------------- | --------------------------- |
+| memberId               | UUID                |                             |
+| memberName             | string              |                             |
+| memberEmail            | string              |                             |
+| memberStatus           | enum `MemberStatus` |                             |
+| memberRole             | enum `MemberRole`   |                             |
+| joinedAt               | ISO datetime        |                             |
+| totalCycles            | integer             | contribution records        |
+| paidCycles             | integer             |                             |
+| pendingCycles          | integer             |                             |
+| overdueCycles          | integer             |                             |
+| totalAmountContributed | number              | sum of `PAID` contributions |
+| totalAmountPaid        | number              | sum of `VERIFIED` payments  |
+| lotteryWins            | integer             |                             |
+| totalPayoutReceived    | number              | sum of `COMPLETED` payouts  |
 
 **Key errors:** `403` no access · `404` committee not found
 
@@ -2785,10 +2875,10 @@ without calling the AI provider.
 
 **Request body:**
 
-| Field | Type | Required | Constraints |
-|---|---|---|---|
-| question | string | yes | 3–500 chars |
-| committeeId | UUID string | no | restrict context to one committee |
+| Field       | Type        | Required | Constraints                       |
+| ----------- | ----------- | -------- | --------------------------------- |
+| question    | string      | yes      | 3–500 chars                       |
+| committeeId | UUID string | no       | restrict context to one committee |
 
 **Success response (`201`):** `{ "answer": "<string>" }`
 
@@ -2842,21 +2932,21 @@ connection comes from `REDIS_HOST`/`REDIS_PORT` (defaults `localhost:6379`).
 
 All values as defined in `prisma/schema.prisma`.
 
-| Enum | Values |
-|---|---|
-| `UserRole` | `USER` \| `ADMIN` |
-| `UserStatus` | `ACTIVE` \| `INACTIVE` \| `SUSPENDED` |
-| `CommitteeStatus` | `DRAFT` \| `ACTIVE` \| `PAUSED` \| `COMPLETED` \| `CANCELLED` |
-| `PayoutMethod` | `LOTTERY` |
-| `MemberRole` | `ADMIN` \| `MEMBER` |
-| `MemberStatus` | `ACTIVE` \| `INACTIVE` \| `INVITED` \| `REMOVED` |
-| `InvitationStatus` | `PENDING` \| `ACCEPTED` \| `EXPIRED` \| `CANCELLED` |
-| `CycleStatus` | `UPCOMING` \| `ACTIVE` \| `COMPLETED` \| `CANCELLED` |
-| `ContributionStatus` | `PENDING` \| `PAID` \| `OVERDUE` |
-| `PaymentStatus` | `PENDING` \| `VERIFIED` \| `REJECTED` |
-| `PayoutStatus` | `PENDING` \| `PROCESSING` \| `COMPLETED` \| `FAILED` |
-| `AuditAction` | `COMMITTEE_CREATED` \| `COMMITTEE_UPDATED` \| `COMMITTEE_STATUS_CHANGED` \| `MEMBER_INVITED` \| `MEMBER_JOINED` \| `MEMBER_REMOVED` \| `PAYMENT_VERIFIED` \| `PAYMENT_REJECTED` \| `CONTRIBUTION_STATUS_CHANGED` \| `LOTTERY_EXECUTED` \| `PAYOUT_CREATED` \| `PAYOUT_STATUS_CHANGED` |
-| `NotificationType` | `COMMITTEE_INVITATION` \| `COMMITTEE_STATUS_CHANGED` \| `CYCLE_STARTED` \| `CYCLE_COMPLETED` \| `CONTRIBUTION_REMINDER` \| `CONTRIBUTION_OVERDUE` \| `PAYMENT_VERIFIED` \| `PAYMENT_REJECTED` \| `LOTTERY_COMPLETED` \| `PAYOUT_COMPLETED` \| `GENERAL` |
+| Enum                 | Values                                                                                                                                                                                                                                                                                |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `UserRole`           | `USER` \| `ADMIN`                                                                                                                                                                                                                                                                     |
+| `UserStatus`         | `ACTIVE` \| `INACTIVE` \| `SUSPENDED`                                                                                                                                                                                                                                                 |
+| `CommitteeStatus`    | `DRAFT` \| `ACTIVE` \| `PAUSED` \| `COMPLETED` \| `CANCELLED`                                                                                                                                                                                                                         |
+| `PayoutMethod`       | `LOTTERY`                                                                                                                                                                                                                                                                             |
+| `MemberRole`         | `ADMIN` \| `MEMBER`                                                                                                                                                                                                                                                                   |
+| `MemberStatus`       | `ACTIVE` \| `INACTIVE` \| `INVITED` \| `REMOVED`                                                                                                                                                                                                                                      |
+| `InvitationStatus`   | `PENDING` \| `ACCEPTED` \| `EXPIRED` \| `CANCELLED`                                                                                                                                                                                                                                   |
+| `CycleStatus`        | `UPCOMING` \| `ACTIVE` \| `COMPLETED` \| `CANCELLED`                                                                                                                                                                                                                                  |
+| `ContributionStatus` | `PENDING` \| `PAID` \| `OVERDUE`                                                                                                                                                                                                                                                      |
+| `PaymentStatus`      | `PENDING` \| `VERIFIED` \| `REJECTED`                                                                                                                                                                                                                                                 |
+| `PayoutStatus`       | `PENDING` \| `PROCESSING` \| `COMPLETED` \| `FAILED`                                                                                                                                                                                                                                  |
+| `AuditAction`        | `COMMITTEE_CREATED` \| `COMMITTEE_UPDATED` \| `COMMITTEE_STATUS_CHANGED` \| `MEMBER_INVITED` \| `MEMBER_JOINED` \| `MEMBER_REMOVED` \| `PAYMENT_VERIFIED` \| `PAYMENT_REJECTED` \| `CONTRIBUTION_STATUS_CHANGED` \| `LOTTERY_EXECUTED` \| `PAYOUT_CREATED` \| `PAYOUT_STATUS_CHANGED` |
+| `NotificationType`   | `COMMITTEE_INVITATION` \| `COMMITTEE_STATUS_CHANGED` \| `CYCLE_STARTED` \| `CYCLE_COMPLETED` \| `CONTRIBUTION_REMINDER` \| `CONTRIBUTION_OVERDUE` \| `PAYMENT_VERIFIED` \| `PAYMENT_REJECTED` \| `LOTTERY_COMPLETED` \| `PAYOUT_COMPLETED` \| `GENERAL`                               |
 
 ---
 
