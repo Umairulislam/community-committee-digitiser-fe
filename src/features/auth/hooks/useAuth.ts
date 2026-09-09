@@ -39,7 +39,8 @@ export function useAuth() {
     user,
     status,
     isAuthenticated: status === 'authenticated',
-    isLoading: status === 'loading',
+    // Keep guards waiting until the initial session check has been synced.
+    isLoading: isLoading || status === 'idle' || status === 'loading',
     refetch,
   };
 }

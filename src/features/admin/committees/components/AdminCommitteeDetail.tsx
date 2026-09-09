@@ -105,7 +105,7 @@ export function AdminCommitteeDetail() {
   const editable = canEditCommittee(committee.status);
   const terminal = isTerminalStatus(committee.status);
   const relatedLinks = ADMIN_NAV_SECTIONS.flatMap((section) => section.items).filter((item) =>
-    RELATED_PATHS.includes(item.path),
+    RELATED_PATHS.includes(item.path) && !item.disabled,
   );
 
   return (

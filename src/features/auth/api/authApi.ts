@@ -1,4 +1,5 @@
 import { baseApi } from '@/api/baseApi';
+import { clearUser } from '../authSlice';
 import type { AuthResponse, LoginRequest, RegisterRequest } from '../types';
 
 /**
@@ -13,7 +14,15 @@ export const authApi = baseApi.injectEndpoints({
         method: 'POST',
         body,
       }),
-      invalidatesTags: ['User'],
+      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled;
+          // Cached responses belong to the previous session, regardless of tag.
+          dispatch(baseApi.util.resetApiState());
+        } catch {
+          // A failed login does not establish a new session.
+        }
+      },
     }),
 
     register: builder.mutation<AuthResponse, RegisterRequest>({
@@ -22,7 +31,15 @@ export const authApi = baseApi.injectEndpoints({
         method: 'POST',
         body,
       }),
-      invalidatesTags: ['User'],
+      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled;
+          // Registration also starts an authenticated session.
+          dispatch(baseApi.util.resetApiState());
+        } catch {
+          // Preserve the current state when registration fails.
+        }
+      },
     }),
 
     logout: builder.mutation<{ message: string }, void>({
@@ -30,7 +47,15 @@ export const authApi = baseApi.injectEndpoints({
         url: '/auth/logout',
         method: 'POST',
       }),
-      invalidatesTags: ['User'],
+      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled;
+          dispatch(clearUser());
+          dispatch(baseApi.util.resetApiState());
+        } catch {
+          // Do not assume the HTTP-only session cookie was cleared on failure.
+        }
+      },
     }),
 
     getMe: builder.query<import('@/types').User, void>({

@@ -16,7 +16,7 @@ import { ProfileInfo, AccountStatus } from '@/features/profile';
 /**
  * User profile page.
  * Displays the authenticated user's personal information and account status.
- * Profile editing is not yet supported by the backend.
+ * Profile editing will be added in the Profile & Account Settings phase.
  */
 export default function ProfilePage() {
   const router = useRouter();

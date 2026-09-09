@@ -5,16 +5,14 @@ import type {
   GenerateCyclesResponse,
   UpdateCycleStatusInput,
   LotteryCycleParams,
-  LotteryEligibility,
-  EligibleMembersResponse,
   AdminLotteryResult,
 } from '../types';
 
 /**
  * Admin cycle & lottery management endpoints.
  *
- * Read endpoints for cycles (list/detail) already live in
- * `@/features/committees` and are reused by the admin UI. This slice adds
+ * Cycle reads live in `@/features/committees`; lottery eligibility reads
+ * live in `@/features/lottery`. Both are reused by the admin UI. This slice adds
  * only the admin mutations plus the lottery-specific reads and mutations
  * that the user-facing slice does not expose.
  *
@@ -58,26 +56,6 @@ export const adminCyclesApi = baseApi.injectEndpoints({
     }),
 
     /**
-     * Check whether a cycle can run a lottery, with a reason when it cannot.
-     * GET /committees/:committeeId/cycles/:cycleId/lottery/eligibility
-     */
-    getLotteryEligibility: builder.query<LotteryEligibility, LotteryCycleParams>({
-      query: ({ committeeId, cycleId }) =>
-        `/committees/${committeeId}/cycles/${cycleId}/lottery/eligibility`,
-      providesTags: ['Lottery'],
-    }),
-
-    /**
-     * List the members eligible for a cycle's draw.
-     * GET /committees/:committeeId/cycles/:cycleId/lottery/eligible-members
-     */
-    getLotteryEligibleMembers: builder.query<EligibleMembersResponse, LotteryCycleParams>({
-      query: ({ committeeId, cycleId }) =>
-        `/committees/${committeeId}/cycles/${cycleId}/lottery/eligible-members`,
-      providesTags: ['Lottery'],
-    }),
-
-    /**
      * Run the lottery draw for a cycle.
      * POST /committees/:committeeId/cycles/:cycleId/lottery/run
      *
@@ -109,8 +87,11 @@ export const adminCyclesApi = baseApi.injectEndpoints({
 export const {
   useGenerateCyclesMutation,
   useUpdateCycleStatusMutation,
-  useGetLotteryEligibilityQuery,
-  useGetLotteryEligibleMembersQuery,
   useRunLotteryMutation,
   useGetLotteryResultQuery,
 } = adminCyclesApi;
+
+export {
+  useGetLotteryEligibilityQuery,
+  useGetLotteryEligibleMembersQuery,
+} from '@/features/lottery/api/lotteryApi';

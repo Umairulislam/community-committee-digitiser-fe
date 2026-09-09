@@ -12,7 +12,7 @@ import { ADMIN_NAV_SECTIONS } from '@/components/layout/admin';
  */
 export function AdminQuickLinks() {
   const links = ADMIN_NAV_SECTIONS.flatMap((section) => section.items).filter(
-    (item) => item.path !== '/admin',
+    (item) => item.path !== '/admin' && !item.disabled,
   );
 
   return (

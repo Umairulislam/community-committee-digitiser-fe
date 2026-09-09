@@ -78,6 +78,7 @@ export function AdminSidebar({ mobileOpen, onMobileClose }: AdminSidebarProps) {
             {section.items.map((item) => (
               <ListItem key={item.path} disablePadding sx={{ px: 1.5, py: 0.25 }}>
                 <ListItemButton
+                  disabled={item.disabled}
                   selected={isActive(item.path)}
                   onClick={() => handleNavigate(item.path)}
                   sx={{
@@ -95,6 +96,7 @@ export function AdminSidebar({ mobileOpen, onMobileClose }: AdminSidebarProps) {
                   </ListItemIcon>
                   <ListItemText
                     primary={item.label}
+                    secondary={item.disabled ? 'Coming soon' : undefined}
                     slotProps={{ primary: { sx: { fontSize: '0.875rem', fontWeight: 500 } } }}
                   />
                 </ListItemButton>

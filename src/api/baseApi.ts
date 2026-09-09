@@ -8,7 +8,7 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
  * The backend delivers auth via an HTTP-only cookie named `jwt`, so
  * `credentials: 'include'` is required on every request — no Authorization header needed.
  */
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000';
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
 
 export const baseApi = createApi({
   reducerPath: 'api',

@@ -18,6 +18,7 @@ export interface AdminNavItem {
   label: string;
   path: string;
   icon: typeof SvgIcon;
+  disabled?: boolean;
 }
 
 export interface AdminNavSection {
@@ -28,7 +29,7 @@ export interface AdminNavSection {
 
 /**
  * Admin navigation structure, grouped by admin workflow area.
- * Paths point at future admin routes; pages are added in later phases.
+ * Pending sections remain disabled until their pages are implemented.
  */
 export const ADMIN_NAV_SECTIONS: AdminNavSection[] = [
   {
@@ -44,16 +45,16 @@ export const ADMIN_NAV_SECTIONS: AdminNavSection[] = [
       { label: 'Contributions & Payments', path: '/admin/contributions', icon: AccountBalanceWalletOutlinedIcon },
       { label: 'Cycles', path: '/admin/cycles', icon: AutorenewOutlinedIcon },
       { label: 'Lottery', path: '/admin/lottery', icon: CasinoOutlinedIcon },
-      { label: 'Payouts', path: '/admin/payouts', icon: PaymentsOutlinedIcon },
+      { label: 'Payouts', path: '/admin/payouts', icon: PaymentsOutlinedIcon, disabled: true },
     ],
   },
   {
     caption: 'System',
     items: [
-      { label: 'Notifications', path: '/admin/notifications', icon: NotificationsOutlinedIcon },
-      { label: 'Audit Logs', path: '/admin/audit-logs', icon: HistoryEduOutlinedIcon },
-      { label: 'Reports', path: '/admin/reports', icon: AssessmentOutlinedIcon },
-      { label: 'Settings', path: '/admin/settings', icon: SettingsOutlinedIcon },
+      { label: 'Notifications', path: '/admin/notifications', icon: NotificationsOutlinedIcon, disabled: true },
+      { label: 'Audit Logs', path: '/admin/audit-logs', icon: HistoryEduOutlinedIcon, disabled: true },
+      { label: 'Reports', path: '/admin/reports', icon: AssessmentOutlinedIcon, disabled: true },
+      { label: 'Settings', path: '/admin/settings', icon: SettingsOutlinedIcon, disabled: true },
     ],
   },
 ];
