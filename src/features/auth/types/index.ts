@@ -14,6 +14,12 @@ export interface RegisterRequest {
   phone?: string;
 }
 
+/** Supported fields for PATCH /auth/me. Null clears the phone. */
+export interface UpdateProfileRequest {
+  name?: string;
+  phone?: string | null;
+}
+
 /** Response shape for login and register (201) */
 export interface AuthResponse {
   message: string;

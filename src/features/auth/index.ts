@@ -9,5 +9,6 @@ export {
   useRegisterMutation,
   useLogoutMutation,
   useGetMeQuery,
+  useUpdateProfileMutation,
 } from './api/authApi';
-export type { AuthState, LoginRequest, RegisterRequest, AuthResponse } from './types';
+export type { AuthState, LoginRequest, RegisterRequest, AuthResponse, UpdateProfileRequest } from './types';

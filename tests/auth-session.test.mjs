@@ -132,3 +132,104 @@ test('a delayed admin response cannot replace the member notification cache', as
   await adminRequest;
   assert.equal(notificationsApi.endpoints.getNotifications.select(notificationArgs)(store.getState()).data.data[0].id, 'member-notification');
 });
+
+const { profileSchema, getProfileChanges } = loadModule(path.join(root, 'src/features/profile/schemas/profileSchema.ts'));
+
+test('profile validation trims values and enforces documented limits', () => {
+  assert.deepEqual(profileSchema.parse({ name: '  Ayesha  ', phone: '  +92 300 1234567  ' }), {
+    name: 'Ayesha', phone: '+92 300 1234567',
+  });
+  for (const name of ['', '   ', 'a'.repeat(101), null]) {
+    assert.equal(profileSchema.safeParse({ name, phone: '' }).success, false);
+  }
+  assert.equal(profileSchema.safeParse({ name: 'a'.repeat(100), phone: '1'.repeat(32) }).success, true);
+  assert.equal(profileSchema.safeParse({ name: 'Ayesha', phone: '1'.repeat(33) }).success, false);
+  const original = { name: 'Ayesha', phone: '+92 300 1234567' };
+  assert.deepEqual(getProfileChanges(profileSchema.parse({ name: 'Ayesha', phone: '  ' }), original), { phone: null });
+  assert.deepEqual(getProfileChanges(original, original), {});
+  assert.deepEqual(getProfileChanges({ name: 'Updated', phone: original.phone, role: 'ADMIN' }, original), { name: 'Updated' });
+});
+
+for (const role of ['USER', 'ADMIN']) {
+  test(`${role} profile update uses cookies and synchronises cache and authenticated state`, async (t) => {
+    const store = setup(t);
+    const original = { id: role, name: 'Original', phone: '123', email: 'original@example.com', role, status: 'ACTIVE' };
+    const updated = { ...original, name: 'Updated by server', phone: null, updatedAt: '2026-09-10T10:00:00.000Z' };
+    store.dispatch(setUser(original));
+    t.mock.method(globalThis, 'fetch', async request => {
+      assert.equal(new URL(request.url).pathname, '/auth/me');
+      assert.equal(request.credentials, 'include');
+      if (request.method === 'GET') return Response.json(original);
+      assert.equal(request.method, 'PATCH');
+      assert.deepEqual(await request.json(), { name: 'Updated', phone: null });
+      return Response.json(updated);
+    });
+    await store.dispatch(authApi.endpoints.getMe.initiate()).unwrap();
+    const result = await store.dispatch(authApi.endpoints.updateProfile.initiate({
+      name: 'Updated', phone: null, role: 'ADMIN', email: 'forbidden@example.com', password: 'forbidden',
+    })).unwrap();
+    assert.deepEqual(result, updated);
+    assert.deepEqual(store.getState().auth.user, updated);
+    assert.deepEqual(authApi.endpoints.getMe.select()(store.getState()).data, updated);
+  });
+}
+
+test('failed profile update preserves the current user and cached profile', async (t) => {
+  const store = setup(t);
+  await store.dispatch(authApi.endpoints.getMe.initiate()).unwrap();
+  t.mock.method(globalThis, 'fetch', async () => Response.json({ message: ['Name is invalid'] }, { status: 400 }));
+  await assert.rejects(store.dispatch(authApi.endpoints.updateProfile.initiate({ name: '' })).unwrap());
+  assert.deepEqual(store.getState().auth.user, admin);
+  assert.deepEqual(authApi.endpoints.getMe.select()(store.getState()).data, admin);
+});
+
+test('a delayed profile update cannot restore a logged-out session', async (t) => {
+  const store = setup(t);
+  let release;
+  let started;
+  const requestStarted = new Promise(resolve => { started = resolve; });
+  const delayed = new Promise(resolve => { release = resolve; });
+  const fetch = globalThis.fetch;
+  t.mock.method(globalThis, 'fetch', async request => {
+    if (request.method === 'PATCH') {
+      started();
+      return delayed;
+    }
+    return fetch(request);
+  });
+  t.after(() => release(Response.json(admin)));
+  const pending = store.dispatch(authApi.endpoints.updateProfile.initiate({ name: 'Updated' }));
+  await requestStarted;
+  await store.dispatch(authApi.endpoints.logout.initiate()).unwrap();
+  release(Response.json({ ...admin, name: 'Updated' }));
+  await pending;
+  assert.equal(store.getState().auth.user, null);
+  assert.equal(authApi.endpoints.getMe.select()(store.getState()).data, undefined);
+});
+
+
+test('profile update omits unchanged phone and preserves profile on network failure', async (t) => {
+  const store = setup(t);
+  await store.dispatch(authApi.endpoints.getMe.initiate()).unwrap();
+  t.mock.method(globalThis, 'fetch', async request => {
+    assert.deepEqual(await request.json(), { name: 'Updated' });
+    throw new TypeError('Failed to fetch');
+  });
+  await assert.rejects(store.dispatch(authApi.endpoints.updateProfile.initiate({ name: 'Updated' })).unwrap());
+  assert.deepEqual(store.getState().auth.user, admin);
+  assert.deepEqual(authApi.endpoints.getMe.select()(store.getState()).data, admin);
+});
+
+test('unauthorised profile update rechecks the authenticated session', async (t) => {
+  const store = setup(t);
+  await store.dispatch(authApi.endpoints.getMe.initiate()).unwrap();
+  let sessionChecks = 0;
+  t.mock.method(globalThis, 'fetch', async request => {
+    if (request.method === 'GET') sessionChecks++;
+    return Response.json({ message: 'Unauthorised' }, { status: 401 });
+  });
+  await assert.rejects(store.dispatch(authApi.endpoints.updateProfile.initiate({ name: 'Updated' })).unwrap());
+  await Promise.all(store.dispatch(authApi.util.getRunningQueriesThunk()));
+  assert.equal(sessionChecks, 1);
+  assert.equal(authApi.endpoints.getMe.select()(store.getState()).error.status, 401);
+});

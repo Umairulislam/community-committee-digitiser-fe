@@ -3,7 +3,6 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import {
-  Alert,
   Box,
   CircularProgress,
   Container,
@@ -11,12 +10,11 @@ import {
   Typography,
 } from '@mui/material';
 import { useAuth } from '@/features/auth';
-import { ProfileInfo, AccountStatus } from '@/features/profile';
+import { ProfileInfo, AccountStatus, ProfileForm } from '@/features/profile';
 
 /**
- * User profile page.
+ * Shared User and Admin profile page.
  * Displays the authenticated user's personal information and account status.
- * Profile editing will be added in the Profile & Account Settings phase.
  */
 export default function ProfilePage() {
   const router = useRouter();
@@ -45,17 +43,16 @@ export default function ProfilePage() {
           My Profile
         </Typography>
         <Typography variant="body1" color="text.secondary" sx={{ mt: 0.5 }}>
-          View your account information
+          View and update your account information
         </Typography>
       </Box>
-
-      <Alert severity="info" sx={{ mb: 3 }}>
-        Profile editing is not yet available. Contact support if you need to update your information.
-      </Alert>
 
       <Grid container spacing={3}>
         <Grid size={{ xs: 12, md: 7 }}>
           <ProfileInfo user={user} />
+          <Box sx={{ mt: 3 }}>
+            <ProfileForm key={user.id} user={user} />
+          </Box>
         </Grid>
         <Grid size={{ xs: 12, md: 5 }}>
           <AccountStatus user={user} />
