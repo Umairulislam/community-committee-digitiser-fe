@@ -52,7 +52,7 @@ export const ADMIN_NAV_SECTIONS: AdminNavSection[] = [
     caption: 'System',
     items: [
       { label: 'Notifications', path: '/admin/notifications', icon: NotificationsOutlinedIcon, disabled: true },
-      { label: 'Audit Logs', path: '/admin/audit-logs', icon: HistoryEduOutlinedIcon, disabled: true },
+      { label: 'Audit Logs', path: '/admin/audit-logs', icon: HistoryEduOutlinedIcon },
       { label: 'Reports', path: '/admin/reports', icon: AssessmentOutlinedIcon, disabled: true },
       { label: 'Settings', path: '/admin/settings', icon: SettingsOutlinedIcon, disabled: true },
     ],
