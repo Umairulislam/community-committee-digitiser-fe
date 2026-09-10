@@ -32,6 +32,8 @@ const RELATED_PATHS = [
   '/admin/cycles',
   '/admin/payouts',
   '/admin/audit-logs',
+  '/admin/notifications',
+  '/admin/reports',
 ];
 
 const CRUMBS = [{ label: 'Committees', href: '/admin/committees' }];
@@ -204,7 +206,7 @@ export function AdminCommitteeDetail() {
                 <Box
                   key={link.path}
                   component={Link}
-                  href={['/admin/payouts', '/admin/audit-logs'].includes(link.path) ? `${link.path}/${committee.id}` : link.path}
+                  href={['/admin/payouts', '/admin/audit-logs', '/admin/notifications', '/admin/reports'].includes(link.path) ? `${link.path}/${committee.id}` : link.path}
                   sx={{
                     display: 'flex',
                     alignItems: 'center',

@@ -51,9 +51,9 @@ export const ADMIN_NAV_SECTIONS: AdminNavSection[] = [
   {
     caption: 'System',
     items: [
-      { label: 'Notifications', path: '/admin/notifications', icon: NotificationsOutlinedIcon, disabled: true },
+      { label: 'Notifications', path: '/admin/notifications', icon: NotificationsOutlinedIcon },
       { label: 'Audit Logs', path: '/admin/audit-logs', icon: HistoryEduOutlinedIcon },
-      { label: 'Reports', path: '/admin/reports', icon: AssessmentOutlinedIcon, disabled: true },
+      { label: 'Reports', path: '/admin/reports', icon: AssessmentOutlinedIcon },
       { label: 'Settings', path: '/admin/settings', icon: SettingsOutlinedIcon, disabled: true },
     ],
   },
