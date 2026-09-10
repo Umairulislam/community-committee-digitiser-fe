@@ -204,7 +204,7 @@ export function AdminCommitteeDetail() {
                 <Box
                   key={link.path}
                   component={Link}
-                  href={link.path}
+                  href={link.path === '/admin/payouts' ? `${link.path}/${committee.id}` : link.path}
                   sx={{
                     display: 'flex',
                     alignItems: 'center',

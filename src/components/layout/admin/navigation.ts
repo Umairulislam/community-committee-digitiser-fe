@@ -45,7 +45,7 @@ export const ADMIN_NAV_SECTIONS: AdminNavSection[] = [
       { label: 'Contributions & Payments', path: '/admin/contributions', icon: AccountBalanceWalletOutlinedIcon },
       { label: 'Cycles', path: '/admin/cycles', icon: AutorenewOutlinedIcon },
       { label: 'Lottery', path: '/admin/lottery', icon: CasinoOutlinedIcon },
-      { label: 'Payouts', path: '/admin/payouts', icon: PaymentsOutlinedIcon, disabled: true },
+      { label: 'Payouts', path: '/admin/payouts', icon: PaymentsOutlinedIcon },
     ],
   },
   {
